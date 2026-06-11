@@ -93,7 +93,7 @@ Call the `devfleet_submit_task` MCP tool from your AI client:
   "prompt": "Add input validation to all API handlers and run the tests.",
   "git_url": "https://github.com/my-org/my-repo",
   "git_ref": "main",
-  "agent_image": "ghcr.io/flatout-works/devfleet-runner:main"
+  "agent_image": "ghcr.io/flatout-works/flatout-dev-runner:main"
 }
 ```
 

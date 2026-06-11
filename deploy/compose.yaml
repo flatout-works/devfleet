@@ -46,12 +46,12 @@ services:
       JETSTREAM_ENABLED: "true"
       TASK_SUBJECT: devfleet.runner.tasks
       EVENT_SUBJECT: devfleet.tasks.>
-      DEFAULT_AGENT_IMAGE: ghcr.io/flatout-works/devfleet-runner:main
+      DEFAULT_AGENT_IMAGE: ghcr.io/flatout-works/flatout-dev-runner:main
     ports:
       - "18088:8080"
 
   dev-runner:
-    image: ghcr.io/flatout-works/devfleet-runner:main
+    image: ghcr.io/flatout-works/flatout-dev-runner:main
     pull_policy: always
     restart: unless-stopped
     depends_on:
@@ -79,7 +79,7 @@ services:
       - runner-data:/var/lib/devfleet-runner
 
   dev-runner-2:
-    image: ghcr.io/flatout-works/devfleet-runner:main
+    image: ghcr.io/flatout-works/flatout-dev-runner:main
     pull_policy: always
     restart: unless-stopped
     depends_on:

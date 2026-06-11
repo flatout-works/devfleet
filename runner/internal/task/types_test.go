@@ -8,7 +8,7 @@ import (
 func TestTaskRequest_MarshalJSON(t *testing.T) {
 	req := TaskRequest{
 		TaskID:     "task-123",
-		AgentImage: "ghcr.io/flatout-works/devfleet-runner:latest",
+		AgentImage: "ghcr.io/flatout-works/flatout-dev-runner:latest",
 		Prompt:     "build me an api",
 		TimeoutSec: 3600,
 		MaxMemoryMB: 4096,
