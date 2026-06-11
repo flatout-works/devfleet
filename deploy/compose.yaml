@@ -1,20 +1,4 @@
 services:
-  mysql:
-    image: mysql:8.4
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: devfleet
-      MYSQL_USER: devfleet
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-devfleet}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-devfleet-root}
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u devfleet -p$${MYSQL_PASSWORD}"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-    volumes:
-      - mysql-data:/var/lib/mysql
-
   nats:
     image: nats:2
     command: ["-js", "-sd", "/data", "--auth", "${NATS_TOKEN:-devfleet-local}"]
@@ -27,13 +11,11 @@ services:
     pull_policy: always
     restart: unless-stopped
     depends_on:
-      mysql:
-        condition: service_healthy
       nats:
         condition: service_started
     environment:
       HTTP_ADDR: :8080
-      DATABASE_DSN: ${DATABASE_DSN:-devfleet:${MYSQL_PASSWORD:-devfleet}@tcp(mysql:3306)/devfleet?parseTime=true}
+      DATABASE_DSN: ${DATABASE_DSN:-}
       MCP_AUTH_TOKEN: ${DEVFLEET_MCP_AUTH_TOKEN:-}
       ARCANE_SERVER_URL: ${ARCANE_SERVER_URL:-}
       ARCANE_API_KEY: ${ARCANE_API_KEY:-}
@@ -107,7 +89,6 @@ services:
       - runner-data-2:/var/lib/devfleet-runner
 
 volumes:
-  mysql-data:
   nats-data:
   runner-data:
   runner-data-2:

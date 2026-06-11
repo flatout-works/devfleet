@@ -44,7 +44,7 @@ For public servers, always set `DEVFLEET_MCP_AUTH_TOKEN`.
 ### 3. Start
 
 ```bash
-docker compose --env-file .env -f deploy/compose.yaml up -d
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml up -d
 ```
 
 This starts:
@@ -54,11 +54,15 @@ This starts:
 - The Devfleet MCP server on port `18088`
 - Two runner containers that pick up tasks
 
+The `deploy/compose.local.yaml` override adds the bundled MySQL service. If you
+already have MySQL or TiDB, set `DATABASE_DSN` in `.env` and run only
+`-f deploy/compose.yaml`.
+
 ### 4. Check It
 
 ```bash
 curl http://localhost:18088/healthz
-docker compose --env-file .env -f deploy/compose.yaml ps
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml ps
 ```
 
 ### 5. Connect Your MCP Client
@@ -103,19 +107,19 @@ Use `GITHUB_TOKEN` in `.env` if runners need access to private repositories or n
 
 ```bash
 # Follow all service logs
-docker compose --env-file .env -f deploy/compose.yaml logs -f
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml logs -f
 
 # Follow only the MCP server
-docker compose --env-file .env -f deploy/compose.yaml logs -f devfleet-mcp
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml logs -f devfleet-mcp
 
 # Follow runner logs
-docker compose --env-file .env -f deploy/compose.yaml logs -f dev-runner dev-runner-2
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml logs -f dev-runner dev-runner-2
 
 # Restart after editing .env
-docker compose --env-file .env -f deploy/compose.yaml up -d
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml up -d
 
 # Stop the stack
-docker compose --env-file .env -f deploy/compose.yaml down
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml down
 ```
 
 ## MCP Tools
@@ -155,7 +159,9 @@ docker compose --env-file .env -f deploy/compose.yaml down
 | `OPENCODE_API_KEY` | Optional OpenCode provider key |
 | `MEM9_API_KEY` | Optional Mem9 memory provider key |
 
-If `DATABASE_DSN` is not set, `deploy/compose.yaml` uses the included MySQL service.
+If `DATABASE_DSN` is not set, use `deploy/compose.local.yaml` to add the bundled
+MySQL service. Production deployments should usually set `DATABASE_DSN` and run
+only `deploy/compose.yaml`.
 
 ## Repository Layout
 
