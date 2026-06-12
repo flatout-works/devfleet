@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 # Build chetter images from the current checkout and push them to GHCR.
-# Run this on wowbagger after a git sync. For the full webhook entrypoint,
-# use deploy/rebuild-on-wowbagger.sh.
+# Optional manual fallback: run this on wowbagger after a git sync to build
+# and push images outside Arcane's project build API.
 #
 # Environment:
 #   REGISTRY        GHCR registry (default: ghcr.io/flatout-works)

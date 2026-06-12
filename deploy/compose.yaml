@@ -8,6 +8,9 @@ services:
 
   chetter-mcp:
     image: ghcr.io/flatout-works/chetter-mcp:main
+    build:
+      context: .
+      dockerfile: Dockerfile
     pull_policy: always
     restart: unless-stopped
     depends_on:
@@ -32,8 +35,21 @@ services:
     ports:
       - "18088:8080"
 
+  chetter-runner-base:
+    profiles: ["build"]
+    image: ghcr.io/flatout-works/chetter-runner-base:main
+    build:
+      context: .
+      dockerfile: runner/Dockerfile.chetter-base
+    command: ["true"]
+
   chetter-runner:
     image: ghcr.io/flatout-works/chetter-runner:main
+    build:
+      context: .
+      dockerfile: runner/Dockerfile.chetter
+      args:
+        BASE_IMAGE: ghcr.io/flatout-works/chetter-runner-base:main
     pull_policy: always
     restart: unless-stopped
     depends_on:

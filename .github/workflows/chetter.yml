@@ -20,17 +20,65 @@ jobs:
       - name: Check chetter
         run: make check
 
-  wowbagger-rebuild:
+  arcane-build-deploy:
     runs-on: ubuntu-latest
     needs: check
+    timeout-minutes: 240
     steps:
-      - name: Trigger wowbagger rebuild
+      - name: Build and deploy with Arcane
         env:
-          ARCANE_CHETTER_REBUILD_URL: ${{ secrets.ARCANE_CHETTER_REBUILD_URL }}
+          ARCANE_URL: ${{ secrets.ARCANE_URL }}
+          ARCANE_API_KEY: ${{ secrets.ARCANE_API_KEY }}
+          ARCANE_CHETTER_PROJECT_ID: ${{ secrets.ARCANE_CHETTER_PROJECT_ID }}
+          ARCANE_CHETTER_GITOPS_ID: ${{ secrets.ARCANE_CHETTER_GITOPS_ID }}
+          ARCANE_ENVIRONMENT_ID: ${{ vars.ARCANE_ENVIRONMENT_ID }}
         run: |
-          url="$ARCANE_CHETTER_REBUILD_URL"
-          if [ -z "$url" ]; then
-            echo "::notice::Arcane webhook secret is not configured; skipping rebuild"
-            exit 0
+          set -euo pipefail
+
+          missing=""
+          for name in ARCANE_URL ARCANE_API_KEY ARCANE_CHETTER_PROJECT_ID ARCANE_CHETTER_GITOPS_ID; do
+            if [ -z "${!name:-}" ]; then
+              missing="$missing $name"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required Arcane configuration:$missing"
+            exit 1
           fi
-          curl --fail --silent --show-error --max-time 180 --request POST "$url" >/dev/null
+
+          arcane_url="${ARCANE_URL%/}"
+          env_id="${ARCANE_ENVIRONMENT_ID:-0}"
+
+          call_arcane() {
+            method="$1"
+            path="$2"
+            data="${3:-}"
+            if [ -n "$data" ]; then
+              curl --fail --silent --show-error --max-time 14400 \
+                --request "$method" \
+                --header "X-Api-Key: $ARCANE_API_KEY" \
+                --header "Content-Type: application/json" \
+                --data "$data" \
+                "$arcane_url/api$path" >/dev/null
+            else
+              curl --fail --silent --show-error --max-time 14400 \
+                --request "$method" \
+                --header "X-Api-Key: $ARCANE_API_KEY" \
+                "$arcane_url/api$path" >/dev/null
+            fi
+          }
+
+          echo "Syncing Chetter GitOps project"
+          call_arcane POST "/environments/$env_id/gitops-syncs/$ARCANE_CHETTER_GITOPS_ID/sync"
+
+          echo "Building and pushing runner base image"
+          call_arcane POST "/environments/$env_id/projects/$ARCANE_CHETTER_PROJECT_ID/build" \
+            '{"services":["chetter-runner-base"],"provider":"local","push":true,"load":true}'
+
+          echo "Building and pushing MCP and runner images"
+          call_arcane POST "/environments/$env_id/projects/$ARCANE_CHETTER_PROJECT_ID/build" \
+            '{"services":["chetter-mcp","chetter-runner"],"provider":"local","push":true,"load":true}'
+
+          echo "Redeploying Chetter project"
+          call_arcane POST "/environments/$env_id/projects/$ARCANE_CHETTER_PROJECT_ID/redeploy" \
+            '{"forceRecreate":true,"pullPolicy":"always","removeOrphans":true}'
