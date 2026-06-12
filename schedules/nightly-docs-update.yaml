@@ -14,7 +14,7 @@
 name: nightly-docs-update
 enabled: false
 cron_expr: "0 4 * * *"
-git_url: https://github.com/your-org/your-repo
+git_url: https://github.com/flatout-works/chetter
 git_ref: main
 agent_image: ghcr.io/your-org/chetter-runner:main
 agent: docs-maintainer
