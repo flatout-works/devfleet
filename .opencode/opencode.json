@@ -25,7 +25,7 @@
   "mcp": {
     "chetter": {
       "type": "remote",
-      "url": "https://chetter.flatout.works/mcp",
+      "url": "https://hummin.flatout.works/mcp",
       "enabled": true,
       "oauth": false,
       "headers": {
