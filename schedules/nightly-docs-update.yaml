@@ -1,3 +1,16 @@
+# Sample schedule: nightly documentation update from recent git changes
+#
+# Customize before enabling:
+#   git_url      - your repository URL
+#   git_ref      - branch to work from (usually main)
+#   agent_image  - runner image (get from your Devfleet admin or build your own)
+#   agent        - optional: custom docs agent if you have one
+#   timeout_sec  - adjust based on repo size and number of docs
+#   prompt       - adapt the doc paths and conventions to your project
+#
+# To sync: devfleet_sync_schedules("schedules/")
+# Or individually: devfleet_schedule_task with these fields.
+
 name: nightly-docs-update
 enabled: false
 cron_expr: "0 4 * * *"

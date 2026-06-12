@@ -1,6 +1,6 @@
 # Build artifacts
 bin/
-devfleet
+/devfleet
 runner/runner
 runner/mcp-bridge
 coverage.out

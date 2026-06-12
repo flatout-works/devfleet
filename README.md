@@ -65,21 +65,73 @@ curl http://localhost:18088/healthz
 docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml ps
 ```
 
-### 5. Connect Your MCP Client
+### 5. Connect Your AI Client
 
-Use this MCP server URL:
+#### OpenCode
 
-```text
-http://YOUR_SERVER:18088/mcp
+This repo includes ready-to-use OpenCode configuration at `.opencode/opencode.json`. It defines:
+
+- **MCP connection** to the Devfleet server
+- **Slash commands:** `/devfleet-status`, `/devfleet-tasks`, `/devfleet-submit`, `/devfleet-schedules`, `/devfleet-cancel`
+- **Skill** at `.opencode/skill/devfleet/SKILL.md` with workflows and schedule management guidance
+
+To set up in your own OpenCode project:
+
+1. Copy `.opencode/opencode.json` (or the relevant `mcp` and `command` blocks) into your project's `opencode.json`.
+2. Copy `.opencode/skill/devfleet/SKILL.md` to your project's `.opencode/skill/devfleet/SKILL.md`.
+3. Set the token:
+   ```bash
+   export DEVFLEET_MCP_TOKEN=your-token
+   ```
+4. Verify:
+   ```bash
+   opencode mcp list
+   # Should show "devfleet" as enabled
+   ```
+
+If you cloned this repo, the config is already in place; just set `DEVFLEET_MCP_TOKEN`.
+
+#### Claude Code
+
+Claude Code supports remote MCP servers. Add the server:
+
+```bash
+claude mcp add --transport http devfleet https://devfleet.flatout.works/mcp \
+  --header "Authorization: Bearer $DEVFLEET_MCP_TOKEN"
 ```
 
-Example MCP client config:
+Or create a project-scoped `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "devfleet": {
+      "type": "http",
+      "url": "https://devfleet.flatout.works/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_TOKEN"
+      }
+    }
+  }
+}
+```
+
+For similar command workflows, translate the OpenCode command templates into your Claude Code command setup.
+
+Verify:
+```bash
+claude mcp list
+# Should show devfleet
+```
+
+#### Other MCP Clients (Cursor, Continue, Claude Desktop)
+
+Use the standard MCP remote server format:
 
 ```json
 {
   "mcpServers": {
     "devfleet": {
-      "url": "http://YOUR_SERVER:18088/mcp",
+      "url": "https://devfleet.flatout.works/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_DEVFLEET_MCP_AUTH_TOKEN"
       }
@@ -88,9 +140,11 @@ Example MCP client config:
 }
 ```
 
+If you self-host Devfleet, use `http://YOUR_SERVER:18088/mcp` instead.
+
 ### 6. Submit A Task
 
-Call the `devfleet_submit_task` MCP tool from your AI client:
+Call the `devfleet_submit_task` MCP tool from your AI client, or use `/devfleet-submit` in OpenCode:
 
 ```json
 {
@@ -101,7 +155,7 @@ Call the `devfleet_submit_task` MCP tool from your AI client:
 }
 ```
 
-Use `GITHUB_TOKEN` in `.env` if runners need access to private repositories or need to create branches and pull requests.
+Set `GITHUB_TOKEN` in `.env` if runners need access to private repositories or need to create branches and pull requests.
 
 ## Common Commands
 

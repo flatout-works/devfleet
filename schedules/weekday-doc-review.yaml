@@ -1,3 +1,18 @@
+# Sample schedule: weekday documentation review (during business hours)
+#
+# Like nightly-docs-update but runs on weekdays so PRs are visible quickly.
+#
+# Customize before enabling:
+#   git_url      - your repository URL
+#   git_ref      - branch to work from (usually main)
+#   agent_image  - runner image (get from your Devfleet admin or build your own)
+#   agent        - optional: custom docs agent if you have one
+#   timeout_sec  - adjust based on repo size
+#   prompt       - adapt the doc paths and conventions to your project
+#
+# To sync: devfleet_sync_schedules("schedules/")
+# Or individually: devfleet_schedule_task with these fields.
+
 name: weekday-doc-review
 enabled: false
 cron_expr: "0 8 * * 1-5"

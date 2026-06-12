@@ -1,3 +1,19 @@
+# Sample schedule: code quality audit
+#
+# Scrubs the codebase for DRY violations, long functions, hardcoded values,
+# unclear naming, missing error wrapping, and dead code.
+#
+# Customize before enabling:
+#   git_url      - your repository URL
+#   git_ref      - branch to work from (usually main)
+#   agent_image  - runner image (get from your Devfleet admin or build your own)
+#   agent        - optional: custom code-quality agent if you have one
+#   timeout_sec  - adjust based on codebase size (large repos need more time)
+#   prompt       - adapt the source directories and quality criteria to your project
+#
+# To sync: devfleet_sync_schedules("schedules/")
+# Or individually: devfleet_schedule_task with these fields.
+
 name: code-quality-audit-daily
 enabled: false
 cron_expr: "0 2 * * *"
