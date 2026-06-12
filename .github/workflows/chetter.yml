@@ -83,7 +83,7 @@ jobs:
           echo "Syncing Chetter GitOps project"
           call_arcane POST "/environments/$env_id/gitops-syncs/$ARCANE_CHETTER_GITOPS_ID/sync" >/dev/null
 
-          project_dir=$(call_arcane GET "/environments/$env_id/projects/$ARCANE_CHETTER_PROJECT_ID" | jq -r '.path')
+          project_dir=$(call_arcane GET "/environments/$env_id/projects/$ARCANE_CHETTER_PROJECT_ID" | jq -r '.data.path // .path')
           if [ -z "$project_dir" ] || [ "$project_dir" = "null" ]; then
             echo "::error::Could not resolve Arcane project directory"
             exit 1
