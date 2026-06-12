@@ -230,7 +230,7 @@ only `deploy/compose.yaml`.
 | `deploy/compose.yaml` | Docker Compose stack |
 | `runner/` | Runner runtime, image Dockerfiles, and entrypoint |
 | `schedules/` | Example declarative schedules |
-| `tools/` | Skills and templates baked into the runner image |
+| `tools/` | Agent support files baked into the runner image |
 
 ## Build From Source
 

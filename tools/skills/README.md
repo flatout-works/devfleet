@@ -1,149 +1,73 @@
-# Skills System
+# Bundled Skills
 
-This directory contains OpenCode skills used for agentic code generation. Skills are loaded by OpenCode at runtime and provide specialized instructions, patterns, and references to guide the LLM.
+This directory contains OpenCode skills that are bundled into the Chetter runner image.
 
-## What is an OpenCode Skill?
+## Current Skills
 
-An OpenCode skill is a markdown package (usually `SKILL.md` + optional `references/` and `scripts/`) that extends the agent with domain-specific knowledge. OpenCode discovers skills by scanning:
+| Skill | Purpose |
+|---|---|
+| `golang-pro` | Go implementation guidance: concurrency, services, generics, performance, tests. |
+| `mysql` | MySQL/InnoDB schema, indexes, query tuning, transactions, and operations. |
+| `tidb-sql` | TiDB-specific SQL behavior, compatibility notes, vector/full-text features, and transactions. |
 
-1. **Global scope:** `~/.agents/skills/**/SKILL.md`
-2. **Project scope:** `/workspace/.agents/skills/**/SKILL.md` (relative to `--dir`)
-3. **Custom paths/URLs:** Configured in `config.json` under `skills.paths` and `skills.urls`
+## How Skills Reach Agents
 
-Skills have YAML frontmatter with `name`, `description`, and optional metadata. The description is what triggers skill loading — it must be specific enough for the routing system to match.
+Skills are baked into `ghcr.io/flatout-works/chetter-runner` by `runner/Dockerfile.chetter`:
 
-## Skills for Backend Development
+```dockerfile
+COPY tools/skills/ /opt/opencode/.agents/skills/
+```
 
-| Skill | Purpose | Triggers |
-|-------|---------|----------|
-| `flatout-backend` | **Orchestrator.** Defines the full backend stack workflow (ConnectRPC, sqlc, goose, slog, TiDB). Delegates to specialist skills for deep domain work. | "Go backend", "ConnectRPC", "sqlc", "goose", "protobuf service" |
-| `golang-pro` | Deep Go expertise: concurrency, generics, interfaces, pprof, benchmarks, project structure, testing. | "goroutines", "channels", "gRPC", "microservices", "Go generics" |
-| `tidb-sql` | TiDB-specific SQL: DDL/DML, vector indexes, full-text search, transaction modes, diagnostics. | "TiDB", "MySQL compatibility", "VECTOR", migration review |
-| `sqlc` | sqlc configuration, query annotations (`:one`/`:many`/`:exec`), multi-engine codegen. | "sqlc", "generated query", `sqlc.yaml` |
-| `protobuf` | Protobuf schema design, field rules, well-known types, buf linting. | "proto", "protobuf", ".proto file" |
+The runner starts OpenCode with `HOME=/opt/opencode` in Docker and Kata modes, so OpenCode discovers bundled skills from:
 
-## How Skills Are Made Available in the Runner
+```text
+/opt/opencode/.agents/skills/**/SKILL.md
+```
 
-The runner spawns OpenCode inside Docker/Kata containers. To make skills available there:
+There is no current runtime copy from host `~/.agents/skills` into task workspaces. Changing a bundled skill requires rebuilding and redeploying the runner image.
 
-### 1. Host-Level Installation (Required)
+## Task Skill Hints
 
-Skills must be installed on the **host** where the runner process runs. The runner copies them into each workspace before starting OpenCode:
+Task requests and schedules can include a `skills` list. Chetter stores that list and prepends it to the prompt as a hint:
+
+```text
+Requested OpenCode skills: golang-pro, mysql. Use these skills when applicable.
+```
+
+The hint does not install a skill. The skill must already exist in the runner image.
+
+## Adding Or Updating Skills
+
+1. Add or edit a directory under `tools/skills/<skill-name>/`.
+2. Ensure it contains `SKILL.md` with valid skill frontmatter.
+3. Keep large supporting material in `references/` under the skill directory.
+4. Rebuild the runner image:
+
+   ```bash
+   make docker-build-runner
+   ```
+
+5. For production, rebuild and push images:
+
+   ```bash
+   REGISTRY=ghcr.io/flatout-works TAG=main ./deploy/build-and-push.sh
+   ```
+
+6. Redeploy Chetter runners so new tasks use the updated image.
+
+## Verification
+
+To inspect a built runner image:
 
 ```bash
-# Install a skill from the skills.sh registry
-npx skills add vercel-labs/agent-skills@go-best-practices -g -y
-
-# Or manually copy into the host agents directory
-mkdir -p ~/.agents/skills/flatout-backend
-cp tools/skills/flatout-backend/SKILL.md ~/.agents/skills/flatout-backend/
-cp -r tools/skills/flatout-backend/references ~/.agents/skills/flatout-backend/
+docker run --rm --entrypoint sh ghcr.io/flatout-works/chetter-runner:main \
+  -lc 'find /opt/opencode/.agents/skills -maxdepth 2 -name SKILL.md -print'
 ```
 
-### 2. Runner Copies Skills Into Workspace
+Expected output includes the bundled skill files, for example:
 
-When a `TaskRequest` arrives, the runner:
-
-1. Creates a fresh workspace directory (`/var/lib/runner/<task-id>/`)
-2. Copies `~/.agents/skills/*` into `<workspace>/.agents/skills/`
-3. Mounts the workspace into the container at `/workspace`
-4. OpenCode discovers the skills at `/workspace/.agents/skills/**/SKILL.md`
-
-This is implemented in `runner/internal/controller/runner.go:copySkillsToWorkspace()`.
-
-### 3. Container Image
-
-The harness image contains the OpenCode binary + MCP bridge but **no skills**. The runner supplies skills at runtime via bind mount.
-
-For stack-specific images (under `tools/stacks/`), the same mechanism applies — skills come from the host via the workspace mount, not baked into the image. This keeps images small and allows updating skills without rebuilding the container.
-
-## Creating a New Skill
-
-1. **Create the directory:**
-   ```bash
-   mkdir -p ~/.agents/skills/<skill-name>/references
-   ```
-
-2. **Write `SKILL.md`:**
-   ```markdown
-   ---
-   name: my-skill
-   description: One-sentence trigger description. Use when X, Y, or Z.
-   ---
-   
-   # My Skill
-   
-   Instructions, patterns, constraints...
-   
-   ## References
-   
-   - `references/topic.md` — Deep dive on specific topic
-   ```
-
-3. **Add references** (optional but recommended for large topics):
-   ```bash
-   # References are loaded on-demand when the skill is invoked for a
-   # specific sub-topic. Keep SKILL.md focused; offload details to refs.
-   ```
-
-4. **Copy to repo if it's project-specific:**
-   ```bash
-   mkdir -p tools/skills/<skill-name>
-   cp -r ~/.agents/skills/<skill-name>/* tools/skills/<skill-name>/
-   ```
-
-5. **Test:** Trigger a runner task and verify in logs that the skill is discovered:
-   ```
-   copied skills ... count=5
-   ```
-   And in OpenCode's output:
-   ```
-   <available_skills> ... <name>my-skill</name> ...
-   ```
-
-## Skill Design Guidelines
-
-- **Use the `metadata` block** in frontmatter: `triggers`, `role: specialist|architect|generalist`, `scope: implementation|review|design`, `output-format: code|markdown|json`
-- **Delegate when possible.** The `flatout-backend` skill is an orchestrator — it describes the workflow and points to `golang-pro`, `tidb-sql`, `sqlc`, and `protobuf` for deep domain details. This avoids duplicating knowledge.
-- **Include working code examples.** Go code should compile (or be close to it). SQL should be valid for TiDB.
-- **Reference verification commands.** Every skill should tell the agent what to run to verify its output: `go build ./...`, `go vet ./...`, `make generate`, etc.
-- **Keep SKILL.md < 300 lines.** Offload long references to `references/*.md`.
-
-## Skill Delivery Pipeline
-
+```text
+/opt/opencode/.agents/skills/golang-pro/SKILL.md
+/opt/opencode/.agents/skills/mysql/SKILL.md
+/opt/opencode/.agents/skills/tidb-sql/SKILL.md
 ```
-Developer workstation          Runner host                    Kata/Docker container
-       │                            │                                    │
-       │  Edit SKILL.md             │                                    │
-       │─────────────►              │                                    │
-       │                            │                                    │
-       │  git push                  │                                    │
-       │────────────────────────►   │                                    │
-       │                            │                                    │
-       │                            │  (or via per-stack Dockerfile)
-       │                            │                                    │
-       │                            │  Task arrives via NATS              │
-       │                            │─────────────► copySkillsToWorkspace()
-       │                            │               ~/.agents/skills ──► /workspace/.agents/skills/
-       │                            │                                    │
-       │                            │  start container                   │
-       │                            │─────────────────────────────────────►
-       │                            │                                    │
-       │                            │                                    │  OpenCode scans /workspace/.agents/skills/**/SKILL.md
-       │                            │                                    │  Skill loaded into prompt context
-```
-
-## Maintenance Checklist
-
-- [ ] Keep host `~/.agents/skills/` in sync with `tools/skills/` in the repo
-- [ ] Update `flatout-backend` when the server stack changes (new deps, new tools)
-- [ ] Update the per-stack Dockerfile when tool versions change in the server
-- [ ] Verify the per-stack Dockerfile still builds correctly
-- [ ] Test skill discovery by checking runner logs for `copied skills ... count=N`
-
-## Related Files
-
-| File | Purpose |
-|------|---------|
-| `runner/internal/controller/runner.go:copySkillsToWorkspace()` | Copies skills at task start |
- 
