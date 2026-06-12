@@ -10,39 +10,39 @@ import (
 
 const (
 	DefaultNATSURL          = "nats://localhost:4222"
-	DefaultTaskStream       = "DEVFLEET_TASKS"
-	DefaultEventStream      = "DEVFLEET_EVENTS"
-	DefaultTaskDurable      = "devfleet-runner"
-	DefaultTaskQueue        = "devfleet-runners"
+	DefaultTaskStream       = "CHETTER_TASKS"
+	DefaultEventStream      = "CHETTER_EVENTS"
+	DefaultTaskDurable      = "chetter-runner"
+	DefaultTaskQueue        = "chetter-runners"
 	DefaultAckWaitSeconds   = 10
 	DefaultMaxDeliver       = 3
 	DefaultMaxAckPending    = 4
 	DefaultStorage          = "file"
-	DefaultListenSubject    = "devfleet.runner.tasks"
-	DefaultResultSubject    = "devfleet.tasks"
+	DefaultListenSubject    = "chetter.runner.tasks"
+	DefaultResultSubject    = "chetter.tasks"
 	DefaultWorkspaceRoot    = "/var/lib/runner"
 	DefaultMaxConcurrent    = 10
 	DefaultProxyAddr        = ":18080"
 	DefaultDNSAddr          = ":53"
 	DefaultDNSUpstream      = "8.8.8.8:53"
 	DefaultDeployProvider   = "local"
-	DefaultDevfleetURL       = "devfleet.works"
+	DefaultChetterURL       = "chetter.flatout.works"
 	EventPublishMinInterval = 15 * time.Second
 	MCPProtocolVersion      = "2024-11-05"
 	MCPServerVersion        = "0.1.0"
 )
 
 type Config struct {
-	NATS         NATSConfig      `yaml:"nats"`
-	JetStream    JetStreamConfig `yaml:"jetstream"`
-	Runner       RunnerConfig    `yaml:"runner"`
-	Proxy        ProxyConfig     `yaml:"proxy"`
-	DNS          DNSConfig       `yaml:"dns"`
-	Git          GitConfig       `yaml:"git"`
-	Execution    ExecutionConfig `yaml:"execution"`
-	Deploy       DeployConfig    `yaml:"deploy"`
-	DevfleetMCP  DevfleetMCPConfig `yaml:"devfleet_mcp"`
-	EmbeddedNATS bool            `yaml:"embedded_nats"`
+	NATS         NATSConfig       `yaml:"nats"`
+	JetStream    JetStreamConfig  `yaml:"jetstream"`
+	Runner       RunnerConfig     `yaml:"runner"`
+	Proxy        ProxyConfig      `yaml:"proxy"`
+	DNS          DNSConfig        `yaml:"dns"`
+	Git          GitConfig        `yaml:"git"`
+	Execution    ExecutionConfig  `yaml:"execution"`
+	Deploy       DeployConfig     `yaml:"deploy"`
+	ChetterMCP   ChetterMCPConfig `yaml:"chetter_mcp"`
+	EmbeddedNATS bool             `yaml:"embedded_nats"`
 }
 
 // NATSConfig specifies the NATS connection URL and embedded server settings.
@@ -102,16 +102,16 @@ type ExecutionConfig struct {
 // for MCP deploy tools.
 type DeployConfig struct {
 	Provider   string `yaml:"provider"`    // "local" or "preview"
-	Registry   string `yaml:"registry"`    // Docker registry for push (e.g. "ghcr.io/devfleet")
-	DevfleetURL string `yaml:"devfleet_url"` // Base URL for preview deployment (e.g. "devfleet.works")
+	Registry   string `yaml:"registry"`    // Docker registry for push (e.g. "ghcr.io/chetter")
+	ChetterURL string `yaml:"chetter_url"` // Base URL for preview deployment (e.g. "chetter.flatout.works")
 }
 
-// DevfleetMCPConfig configures the remote devfleet MCP server that exposes
+// ChetterMCPConfig configures the remote chetter MCP server that exposes
 // infrastructure tools (e.g. Arcane vulnerability scans) to agents running
-// inside devfleet task containers.
-type DevfleetMCPConfig struct {
-	URL       string `yaml:"url"`        // Devfleet MCP HTTP endpoint (e.g. https://devfleet.works/mcp)
-	AuthToken string `yaml:"auth_token"` // Bearer token for authenticating to the devfleet MCP
+// inside chetter task containers.
+type ChetterMCPConfig struct {
+	URL       string `yaml:"url"`        // Chetter MCP HTTP endpoint (e.g. https://chetter.flatout.works/mcp)
+	AuthToken string `yaml:"auth_token"` // Bearer token for authenticating to the chetter MCP
 }
 
 // Load reads configuration from the given path.
@@ -180,11 +180,11 @@ func applyDefaults(cfg *Config) {
 	if cfg.Deploy.Provider == "" {
 		cfg.Deploy.Provider = DefaultDeployProvider
 	}
-	if cfg.Deploy.DevfleetURL == "" {
-		cfg.Deploy.DevfleetURL = DefaultDevfleetURL
+	if cfg.Deploy.ChetterURL == "" {
+		cfg.Deploy.ChetterURL = DefaultChetterURL
 	}
-	if cfg.DevfleetMCP.AuthToken == "" {
-		cfg.DevfleetMCP.AuthToken = os.Getenv("DEVFLEET_MCP_AUTH_TOKEN")
+	if cfg.ChetterMCP.AuthToken == "" {
+		cfg.ChetterMCP.AuthToken = os.Getenv("CHETTER_MCP_AUTH_TOKEN")
 	}
 	if env := os.Getenv("JETSTREAM_ENABLED"); env != "" {
 		cfg.JetStream.Enabled = env == "true" || env == "1"

@@ -33,7 +33,7 @@ func TestServerInitialize(t *testing.T) {
 	if !ok {
 		t.Fatalf("serverInfo is not map[string]string: %T", result["serverInfo"])
 	}
-	if serverInfo["name"] != "devfleet-runner" {
+	if serverInfo["name"] != "chetter-runner" {
 		t.Errorf("name = %q", serverInfo["name"])
 	}
 	if serverInfo["version"] != "0.1.0" {

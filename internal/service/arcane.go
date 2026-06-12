@@ -20,7 +20,7 @@ type ArcaneClient struct {
 // NewArcaneClient creates an Arcane API client.
 func NewArcaneClient(baseURL, apiKey string) *ArcaneClient {
 	if baseURL == "" {
-		baseURL = "https://arcane.devfleet.works"
+		baseURL = "https://arcane.chetter.flatout.works"
 	}
 	return &ArcaneClient{
 		baseURL: baseURL,
@@ -52,17 +52,17 @@ type SeveritySummary struct {
 
 // ScanSummary is the per-image vulnerability summary.
 type ScanSummary struct {
-	ImageID   string          `json:"imageId"`
-	ScanTime  time.Time       `json:"scanTime"`
-	Status    string          `json:"status"`
-	Summary   SeveritySummary `json:"summary"`
+	ImageID  string          `json:"imageId"`
+	ScanTime time.Time       `json:"scanTime"`
+	Status   string          `json:"status"`
+	Summary  SeveritySummary `json:"summary"`
 }
 
 // EnvironmentVulnerabilitySummary aggregates vulnerability counts across all images.
 type EnvironmentVulnerabilitySummary struct {
-	TotalImages    int             `json:"totalImages"`
-	ScannedImages  int             `json:"scannedImages"`
-	Summary        SeveritySummary `json:"summary"`
+	TotalImages   int             `json:"totalImages"`
+	ScannedImages int             `json:"scannedImages"`
+	Summary       SeveritySummary `json:"summary"`
 }
 
 // Vulnerability is a single CVE entry.
@@ -82,10 +82,10 @@ type Vulnerability struct {
 
 // CVSSInfo holds CVSS scores.
 type CVSSInfo struct {
-	V2Score float64 `json:"v2Score,omitempty"`
-	V3Score float64 `json:"v3Score,omitempty"`
-	V2Vector string `json:"v2Vector,omitempty"`
-	V3Vector string `json:"v3Vector,omitempty"`
+	V2Score  float64 `json:"v2Score,omitempty"`
+	V3Score  float64 `json:"v3Score,omitempty"`
+	V2Vector string  `json:"v2Vector,omitempty"`
+	V3Vector string  `json:"v3Vector,omitempty"`
 }
 
 // VulnerabilityWithImage includes the source image context.
@@ -204,11 +204,11 @@ func (c *ArcaneClient) GetBatchScanSummaries(ctx context.Context, envID string, 
 
 // ImageSummaryItem is a simplified image record from the list endpoint.
 type ImageSummaryItem struct {
-	ID        string   `json:"id"`
-	RepoTags  []string `json:"repoTags"`
-	Repo      string   `json:"repo"`
-	Tag       string   `json:"tag"`
-	InUse     bool     `json:"inUse"`
+	ID       string   `json:"id"`
+	RepoTags []string `json:"repoTags"`
+	Repo     string   `json:"repo"`
+	Tag      string   `json:"tag"`
+	InUse    bool     `json:"inUse"`
 }
 
 // ListEnvironmentImages returns all Docker images in an environment.
@@ -218,8 +218,8 @@ func (c *ArcaneClient) ListEnvironmentImages(ctx context.Context, envID string) 
 		return nil, err
 	}
 	var resp struct {
-		Success bool                `json:"success"`
-		Data    []ImageSummaryItem  `json:"data"`
+		Success bool               `json:"success"`
+		Data    []ImageSummaryItem `json:"data"`
 	}
 	if err := json.Unmarshal(body, &resp); err != nil {
 		return nil, fmt.Errorf("parse environment images: %w", err)
@@ -238,8 +238,8 @@ func (c *ArcaneClient) ListVulnerabilities(ctx context.Context, envID, imageID s
 		return nil, 0, err
 	}
 	var resp struct {
-		Success    bool              `json:"success"`
-		Data       []Vulnerability   `json:"data"`
+		Success    bool            `json:"success"`
+		Data       []Vulnerability `json:"data"`
 		Pagination struct {
 			TotalItems int `json:"totalItems"`
 		} `json:"pagination"`

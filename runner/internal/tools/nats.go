@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/nats"
+	"github.com/flatout-works/chetter/runner/internal/nats"
 )
 
 // NatsTool provides MCP tool handlers for NATS publish and request,

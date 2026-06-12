@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/flatout-works/devfleet/runner/internal/config"
+	"github.com/flatout-works/chetter/runner/internal/config"
 	"github.com/miekg/dns"
 )
 

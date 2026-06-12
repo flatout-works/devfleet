@@ -113,7 +113,7 @@ func TestMatchesCodePath(t *testing.T) {
 func TestBuildReviewTaskRequest(t *testing.T) {
 	review := ReviewContext{
 		Trigger:       "file-pattern",
-		Repo:          "devfleet/devfleet",
+		Repo:          "chetter/chetter",
 		PRNumber:      42,
 		BaseRef:       "main",
 		HeadRef:       "feat/some-thing",
@@ -153,7 +153,7 @@ func TestBuildReviewTaskRequest(t *testing.T) {
 	if got := req.Env["GITHUB_TOKEN"]; got != "ghs_test_token" {
 		t.Errorf("Env[GITHUB_TOKEN] = %q, want ghs_test_token", got)
 	}
-	if got := req.Env["GITHUB_REPO"]; got != "devfleet/devfleet" {
+	if got := req.Env["GITHUB_REPO"]; got != "chetter/chetter" {
 		t.Errorf("Env[GITHUB_REPO] = %q, want my-org/my-repo", got)
 	}
 	if _, ok := req.Env["COMMENT_AUTHOR"]; ok {
@@ -165,7 +165,7 @@ func TestBuildReviewTaskRequest_WithComment(t *testing.T) {
 	review := ReviewContext{
 		Trigger:       "comment",
 		CommentAuthor: "someuser",
-		Repo:          "devfleet/devfleet",
+		Repo:          "chetter/chetter",
 		PRNumber:      7,
 		BaseRef:       "main",
 		HeadRef:       "fix/x",
@@ -182,18 +182,18 @@ func TestBuildReviewTaskRequest_WithComment(t *testing.T) {
 // PR should be reviewed, using a mocked GitHub client.
 func TestShouldReview_FilterLogic(t *testing.T) {
 	cases := []struct {
-		name       string
-		pr         PullRequest
-		repo       string
-		files      []string // files listed from API
-		filesErr   error
-		wantOK     bool
+		name        string
+		pr          PullRequest
+		repo        string
+		files       []string // files listed from API
+		filesErr    error
+		wantOK      bool
 		wantTrigger string
 	}{
 		{
 			name: "label triggers review",
 			pr: PullRequest{
-				Labels: []Label{{Name: "devfleet-review"}},
+				Labels: []Label{{Name: "chetter-review"}},
 			},
 			repo:   "org/repo",
 			files:  nil,

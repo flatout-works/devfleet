@@ -15,9 +15,9 @@ import (
 
 // Server wraps an embedded NATS server instance.
 type Server struct {
-	srv     *server.Server
-	Port    int
-	URL     string
+	srv  *server.Server
+	Port int
+	URL  string
 }
 
 // Start creates and starts an embedded NATS server on a random port.
@@ -32,7 +32,7 @@ func Start() (*Server, error) {
 	opts := &server.Options{
 		Port:       port,
 		NoSigs:     true,
-		ServerName: "devfleet-embedded",
+		ServerName: "chetter-embedded",
 	}
 	nc, err := server.NewServer(opts)
 	if err != nil {

@@ -151,14 +151,14 @@ func ToolDefinitions() []map[string]any {
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
-					"image":       map[string]string{"type": "string", "description": "Versioned image tag to push (e.g. registry/devfleet-abc:def4567). Defaults to :latest if empty."},
+					"image":       map[string]string{"type": "string", "description": "Versioned image tag to push (e.g. registry/chetter-abc:def4567). Defaults to :latest if empty."},
 					"timeout_sec": map[string]string{"type": "integer", "default": "300"},
 				},
 			},
 		},
 		{
 			"name":        "deploy_run",
-			"description": "Run a container from a built image on the runner host. Stops any existing container with the same name first (redeploy). For local provider: accessible at http://localhost:<port>. For preview provider: accessible at https://<task>.devfleet.works. Returns the access URL in the response.",
+			"description": "Run a container from a built image on the runner host. Stops any existing container with the same name first (redeploy). For local provider: accessible at http://localhost:<port>. For preview provider: accessible at https://<task>.chetter.flatout.works. Returns the access URL in the response.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
@@ -210,7 +210,7 @@ func ToolDefinitions() []map[string]any {
 				"type": "object",
 				"properties": map[string]any{
 					"all":    map[string]string{"type": "boolean", "description": "Include stopped containers", "default": "false"},
-					"filter": map[string]string{"type": "string", "description": "Docker filter expression (e.g. 'name=devfleet-')"},
+					"filter": map[string]string{"type": "string", "description": "Docker filter expression (e.g. 'name=chetter-')"},
 				},
 			},
 		},
@@ -228,7 +228,7 @@ func ToolDefinitions() []map[string]any {
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
-					"image": map[string]string{"type": "string", "description": "Exact image tag to roll back to (required, e.g. devfleet-abc:def4567)"},
+					"image": map[string]string{"type": "string", "description": "Exact image tag to roll back to (required, e.g. chetter-abc:def4567)"},
 					"name":  map[string]string{"type": "string", "description": "Container name (auto-generated from task ID if empty)"},
 					"port":  map[string]string{"type": "string", "description": "Port to expose", "default": "8080"},
 					"env":   map[string]string{"type": "object", "description": "Environment variables for the container (e.g. DATABASE_URL, API_KEY)"},
@@ -236,6 +236,5 @@ func ToolDefinitions() []map[string]any {
 				"required": []string{"image"},
 			},
 		},
-
 	}
 }

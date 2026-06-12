@@ -41,7 +41,7 @@ RUN apt-get update \
 
 COPY --from=ctr-downloader /usr/local/bin/ctr /usr/local/bin/ctr
 
-ENV TMPDIR=/tmp/devfleet-runner
+ENV TMPDIR=/tmp/chetter-runner
 COPY --from=builder /app/runner /usr/local/bin/runner
 COPY runner.docker.yaml /etc/runner/runner.yaml
 

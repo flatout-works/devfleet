@@ -11,8 +11,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/task"
-	"github.com/flatout-works/devfleet/runner/test/testutil"
+	"github.com/flatout-works/chetter/runner/internal/task"
+	"github.com/flatout-works/chetter/runner/test/testutil"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 	taskID := fmt.Sprintf("kata-poc-%d", time.Now().Unix())
 	req := task.TaskRequest{
 		TaskID:     taskID,
-		AgentImage: "docker.io/devfleet/opencode:latest",
+		AgentImage: "docker.io/chetter/opencode:latest",
 		GitURL:     "https://github.com/octocat/Hello-World.git",
 		Prompt:     "List the files in README.md and summarize what this project does in one sentence.",
 		TimeoutSec: 300,

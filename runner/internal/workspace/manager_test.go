@@ -77,7 +77,7 @@ func TestSocketPathLength(t *testing.T) {
 
 	// Short task ID produces a simple path.
 	short := mgr.SocketPath("a")
-	if short != "/tmp/devfleet-a.sock" {
+	if short != "/tmp/chetter-a.sock" {
 		t.Errorf("short task socket = %q", short)
 	}
 }
@@ -88,7 +88,7 @@ func TestSocketPathShortensLongIDs(t *testing.T) {
 	// A task ID longer than 12 chars should use only the last 12.
 	long := "abc123def456ghi789jkl"
 	path := mgr.SocketPath(long)
-	if len(path) > len("/tmp/devfleet-")+12+len(".sock")+1 {
+	if len(path) > len("/tmp/chetter-")+12+len(".sock")+1 {
 		t.Errorf("socket path not shortened: %s", path)
 	}
 }

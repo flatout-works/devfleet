@@ -1,8 +1,8 @@
-# Devfleet
+# Chetter
 
-Devfleet is a self-hosted MCP (Model Context Protocol) server for running autonomous AI development agents. It gives your AI tooling a way to submit software development work to a fleet of containerized runners.
+Chetter is a self-hosted MCP (Model Context Protocol) server for running autonomous AI development agents. It gives your AI tooling a way to submit software development work to a fleet of containerized runners.
 
-A Devfleet runner can clone a repository, start an OpenCode agent, execute a prompt, stream progress events, and persist the final result. You interact with it through MCP tools from clients such as Claude Desktop, Cursor, Continue, or your own agent stack.
+A Chetter runner can clone a repository, start an OpenCode agent, execute a prompt, stream progress events, and persist the final result. You interact with it through MCP tools from clients such as Claude Desktop, Cursor, Continue, or your own agent stack.
 
 ## What It Can Do
 
@@ -21,8 +21,8 @@ These steps are intended for a fresh Linux cloud machine with Docker installed.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/flatout-works/devfleet.git
-cd devfleet
+git clone https://github.com/flatout-works/chetter.git
+cd chetter
 ```
 
 ### 2. Configure
@@ -36,10 +36,10 @@ Edit `.env` and set at least:
 - `NATS_TOKEN`
 - `MYSQL_PASSWORD`
 - `MYSQL_ROOT_PASSWORD`
-- `DEVFLEET_MCP_AUTH_TOKEN`
+- `CHETTER_MCP_AUTH_TOKEN`
 - At least one LLM provider key, such as `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `SYNTHETIC_API_KEY`, or `OPENCODE_API_KEY`
 
-For public servers, always set `DEVFLEET_MCP_AUTH_TOKEN`.
+For public servers, always set `CHETTER_MCP_AUTH_TOKEN`.
 
 ### 3. Start
 
@@ -49,9 +49,9 @@ docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.ya
 
 This starts:
 
-- MySQL for Devfleet state
+- MySQL for Chetter state
 - NATS with JetStream for task messaging
-- The Devfleet MCP server on port `18088`
+- The Chetter MCP server on port `18088`
 - Two runner containers that pick up tasks
 
 The `deploy/compose.local.yaml` override adds the bundled MySQL service. If you
@@ -71,42 +71,42 @@ docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.ya
 
 This repo includes ready-to-use OpenCode configuration at `.opencode/opencode.json`. It defines:
 
-- **MCP connection** to the Devfleet server
-- **Slash commands:** `/devfleet-status`, `/devfleet-tasks`, `/devfleet-submit`, `/devfleet-schedules`, `/devfleet-cancel`
-- **Skill** at `.opencode/skill/devfleet/SKILL.md` with workflows and schedule management guidance
+- **MCP connection** to the Chetter server
+- **Slash commands:** `/chetter-status`, `/chetter-tasks`, `/chetter-submit`, `/chetter-schedules`, `/chetter-cancel`
+- **Skill** at `.opencode/skill/chetter/SKILL.md` with workflows and schedule management guidance
 
 To set up in your own OpenCode project:
 
 1. Copy `.opencode/opencode.json` (or the relevant `mcp` and `command` blocks) into your project's `opencode.json`.
-2. Copy `.opencode/skill/devfleet/SKILL.md` to your project's `.opencode/skill/devfleet/SKILL.md`.
+2. Copy `.opencode/skill/chetter/SKILL.md` to your project's `.opencode/skill/chetter/SKILL.md`.
 3. Set the token:
    ```bash
-   export DEVFLEET_MCP_TOKEN=your-token
+   export CHETTER_MCP_TOKEN=your-token
    ```
 4. Verify:
    ```bash
    opencode mcp list
-   # Should show "devfleet" as enabled
+   # Should show "chetter" as enabled
    ```
 
-If you cloned this repo, the config is already in place; just set `DEVFLEET_MCP_TOKEN`.
+If you cloned this repo, the config is already in place; just set `CHETTER_MCP_TOKEN`.
 
 #### Claude Code
 
 Claude Code supports remote MCP servers. Add the server:
 
 ```bash
-claude mcp add --transport http devfleet https://devfleet.flatout.works/mcp \
-  --header "Authorization: Bearer $DEVFLEET_MCP_TOKEN"
+claude mcp add --transport http chetter https://chetter.flatout.works/mcp \
+  --header "Authorization: Bearer $CHETTER_MCP_TOKEN"
 ```
 
 Or create a project-scoped `.mcp.json`:
 ```json
 {
   "mcpServers": {
-    "devfleet": {
+    "chetter": {
       "type": "http",
-      "url": "https://devfleet.flatout.works/mcp",
+      "url": "https://chetter.flatout.works/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_TOKEN"
       }
@@ -120,7 +120,7 @@ For similar command workflows, translate the OpenCode command templates into you
 Verify:
 ```bash
 claude mcp list
-# Should show devfleet
+# Should show chetter
 ```
 
 #### Other MCP Clients (Cursor, Continue, Claude Desktop)
@@ -130,28 +130,28 @@ Use the standard MCP remote server format:
 ```json
 {
   "mcpServers": {
-    "devfleet": {
-      "url": "https://devfleet.flatout.works/mcp",
+    "chetter": {
+      "url": "https://chetter.flatout.works/mcp",
       "headers": {
-        "Authorization": "Bearer YOUR_DEVFLEET_MCP_AUTH_TOKEN"
+        "Authorization": "Bearer YOUR_CHETTER_MCP_AUTH_TOKEN"
       }
     }
   }
 }
 ```
 
-If you self-host Devfleet, use `http://YOUR_SERVER:18088/mcp` instead.
+If you self-host Chetter, use `http://YOUR_SERVER:18088/mcp` instead.
 
 ### 6. Submit A Task
 
-Call the `devfleet_submit_task` MCP tool from your AI client, or use `/devfleet-submit` in OpenCode:
+Call the `chetter_submit_task` MCP tool from your AI client, or use `/chetter-submit` in OpenCode:
 
 ```json
 {
   "prompt": "Add input validation to all API handlers and run the tests.",
   "git_url": "https://github.com/my-org/my-repo",
   "git_ref": "main",
-  "agent_image": "ghcr.io/flatout-works/flatout-dev-runner:main"
+  "agent_image": "ghcr.io/flatout-works/chetter-runner:main"
 }
 ```
 
@@ -164,10 +164,10 @@ Set `GITHUB_TOKEN` in `.env` if runners need access to private repositories or n
 docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml logs -f
 
 # Follow only the MCP server
-docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml logs -f devfleet-mcp
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml logs -f chetter-mcp
 
 # Follow runner logs
-docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml logs -f dev-runner dev-runner-2
+docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml logs -f chetter-runner chetter-runner-2
 
 # Restart after editing .env
 docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.yaml up -d
@@ -180,20 +180,20 @@ docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.ya
 
 | Tool | Purpose |
 |---|---|
-| `devfleet_submit_task` | Submit a one-off development task |
-| `devfleet_task_status` | Fetch persisted task status and result |
-| `devfleet_list_tasks` | List recent tasks |
-| `devfleet_schedule_task` | Create a cron-backed task schedule |
-| `devfleet_run_schedule` | Run a schedule immediately |
-| `devfleet_list_schedules` | List cron task schedules |
-| `devfleet_delete_schedule` | Delete a schedule by name |
-| `devfleet_update_schedule` | Update a schedule |
-| `devfleet_cancel_task` | Cancel a pending or running task |
-| `devfleet_clear_queue` | Clear queued tasks |
-| `devfleet_task_events` | Fetch full event history for a task |
-| `devfleet_task_progress` | Fetch distilled task progress |
-| `devfleet_task_latest_event` | Fetch latest event for a task |
-| `devfleet_runner_health` | Derive fleet health and runner status |
+| `chetter_submit_task` | Submit a one-off development task |
+| `chetter_task_status` | Fetch persisted task status and result |
+| `chetter_list_tasks` | List recent tasks |
+| `chetter_schedule_task` | Create a cron-backed task schedule |
+| `chetter_run_schedule` | Run a schedule immediately |
+| `chetter_list_schedules` | List cron task schedules |
+| `chetter_delete_schedule` | Delete a schedule by name |
+| `chetter_update_schedule` | Update a schedule |
+| `chetter_cancel_task` | Cancel a pending or running task |
+| `chetter_clear_queue` | Clear queued tasks |
+| `chetter_task_events` | Fetch full event history for a task |
+| `chetter_task_progress` | Fetch distilled task progress |
+| `chetter_task_latest_event` | Fetch latest event for a task |
+| `chetter_runner_health` | Derive fleet health and runner status |
 
 ## Configuration
 
@@ -201,9 +201,9 @@ docker compose --env-file .env -f deploy/compose.yaml -f deploy/compose.local.ya
 
 | Variable | Description |
 |---|---|
-| `DEVFLEET_MCP_AUTH_TOKEN` | Bearer token required by `/mcp` |
+| `CHETTER_MCP_AUTH_TOKEN` | Bearer token required by `/mcp` |
 | `NATS_TOKEN` | NATS auth token used by the local stack |
-| `MYSQL_PASSWORD` | Password for the local `devfleet` MySQL user |
+| `MYSQL_PASSWORD` | Password for the local `chetter` MySQL user |
 | `MYSQL_ROOT_PASSWORD` | Root password for the local MySQL container |
 | `DATABASE_DSN` | Optional external MySQL/TiDB DSN override |
 | `GITHUB_TOKEN` | Optional token for private repos and GitHub write operations |

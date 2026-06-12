@@ -161,11 +161,11 @@ func TestIsRunnerHeartbeatSubject(t *testing.T) {
 		subject string
 		want    bool
 	}{
-		{"devfleet.tasks.runners.runner-1.heartbeat", true},
-		{"devfleet.project.tasks.runners.runner-1.heartbeat", true},
-		{"devfleet.tasks.task-1.status", false},
-		{"devfleet.tasks.runners.runner-1.status", false},
-		{"devfleet.tasks.runner-1.heartbeat", false},
+		{"chetter.tasks.runners.runner-1.heartbeat", true},
+		{"chetter.project.tasks.runners.runner-1.heartbeat", true},
+		{"chetter.tasks.task-1.status", false},
+		{"chetter.tasks.runners.runner-1.status", false},
+		{"chetter.tasks.runner-1.heartbeat", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.subject, func(t *testing.T) {

@@ -8,13 +8,13 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/flatout-works/devfleet/internal/store"
+	"github.com/flatout-works/chetter/internal/store"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// SubmitTaskInput is the input for devfleet_submit_task.
+// SubmitTaskInput is the input for chetter_submit_task.
 type SubmitTaskInput struct {
-	Prompt     string            `json:"prompt" jsonschema:"Task prompt to run in the dev runner"`
+	Prompt     string            `json:"prompt" jsonschema:"Task prompt to run in the Chetter runner"`
 	GitURL     string            `json:"git_url,omitempty" jsonschema:"Repository URL to clone before running the task"`
 	GitRef     string            `json:"git_ref,omitempty" jsonschema:"Branch tag or commit to check out"`
 	AgentImage string            `json:"agent_image,omitempty" jsonschema:"Runner harness image override"`
@@ -27,28 +27,28 @@ type SubmitTaskInput struct {
 	TimeoutSec int               `json:"timeout_sec,omitempty" jsonschema:"Task timeout in seconds"`
 }
 
-// SubmitTaskOutput is the output for devfleet_submit_task.
+// SubmitTaskOutput is the output for chetter_submit_task.
 type SubmitTaskOutput struct {
 	Task TaskToolRecord `json:"task"`
 }
 
-// TaskStatusInput is the input for devfleet_task_status.
+// TaskStatusInput is the input for chetter_task_status.
 type TaskStatusInput struct {
-	TaskID string `json:"task_id" jsonschema:"Task identifier returned by devfleet_submit_task"`
+	TaskID string `json:"task_id" jsonschema:"Task identifier returned by chetter_submit_task"`
 }
 
-// TaskStatusOutput is the output for devfleet_task_status.
+// TaskStatusOutput is the output for chetter_task_status.
 type TaskStatusOutput struct {
 	Task TaskToolRecord `json:"task"`
 }
 
-// ListTasksInput is the input for devfleet_list_tasks.
+// ListTasksInput is the input for chetter_list_tasks.
 type ListTasksInput struct {
 	Status string `json:"status,omitempty" jsonschema:"Optional task status filter"`
 	Limit  int    `json:"limit,omitempty" jsonschema:"Maximum tasks to return, capped at 100"`
 }
 
-// ListTasksOutput is the output for devfleet_list_tasks.
+// ListTasksOutput is the output for chetter_list_tasks.
 type ListTasksOutput struct {
 	Tasks []TaskToolRecord `json:"tasks"`
 }
@@ -77,7 +77,7 @@ type TaskToolRecord struct {
 	EndedAt    *time.Time        `json:"ended_at,omitempty"`
 }
 
-// ScheduleTaskInput is the input for devfleet_schedule_task.
+// ScheduleTaskInput is the input for chetter_schedule_task.
 type ScheduleTaskInput struct {
 	Name       string   `json:"name" jsonschema:"Unique schedule name"`
 	CronExpr   string   `json:"cron_expr" jsonschema:"Five-field cron expression or descriptor like @hourly"`
@@ -93,42 +93,42 @@ type ScheduleTaskInput struct {
 	TimeoutSec int      `json:"timeout_sec,omitempty" jsonschema:"Task timeout in seconds"`
 }
 
-// ScheduleTaskOutput is the output for devfleet_schedule_task.
+// ScheduleTaskOutput is the output for chetter_schedule_task.
 type ScheduleTaskOutput struct {
 	Schedule store.ScheduleRecord `json:"schedule"`
 }
 
-// RunScheduleInput is the input for devfleet_run_schedule.
+// RunScheduleInput is the input for chetter_run_schedule.
 type RunScheduleInput struct {
 	Name string `json:"name" jsonschema:"Name of the schedule to run immediately"`
 }
 
-// RunScheduleOutput is the output for devfleet_run_schedule.
+// RunScheduleOutput is the output for chetter_run_schedule.
 type RunScheduleOutput struct {
 	Task TaskToolRecord `json:"task"`
 }
 
-// ListSchedulesInput is the input for devfleet_list_schedules.
+// ListSchedulesInput is the input for chetter_list_schedules.
 type ListSchedulesInput struct {
 	EnabledOnly bool `json:"enabled_only,omitempty" jsonschema:"Only return enabled schedules"`
 }
 
-// ListSchedulesOutput is the output for devfleet_list_schedules.
+// ListSchedulesOutput is the output for chetter_list_schedules.
 type ListSchedulesOutput struct {
 	Schedules []store.ScheduleRecord `json:"schedules"`
 }
 
-// DeleteScheduleInput is the input for devfleet_delete_schedule.
+// DeleteScheduleInput is the input for chetter_delete_schedule.
 type DeleteScheduleInput struct {
 	Name string `json:"name" jsonschema:"Name of the schedule to delete"`
 }
 
-// DeleteScheduleOutput is the output for devfleet_delete_schedule.
+// DeleteScheduleOutput is the output for chetter_delete_schedule.
 type DeleteScheduleOutput struct {
 	Deleted bool `json:"deleted"`
 }
 
-// UpdateScheduleInput is the input for devfleet_update_schedule.
+// UpdateScheduleInput is the input for chetter_update_schedule.
 type UpdateScheduleInput struct {
 	Name       string   `json:"name" jsonschema:"Name of the schedule to update"`
 	CronExpr   string   `json:"cron_expr,omitempty" jsonschema:"Five-field cron expression or descriptor like @hourly"`
@@ -145,31 +145,31 @@ type UpdateScheduleInput struct {
 	TimeoutSec int      `json:"timeout_sec,omitempty" jsonschema:"Task timeout in seconds"`
 }
 
-// UpdateScheduleOutput is the output for devfleet_update_schedule.
+// UpdateScheduleOutput is the output for chetter_update_schedule.
 type UpdateScheduleOutput struct {
 	Schedule store.ScheduleRecord `json:"schedule"`
 }
 
-// SyncSchedulesInput is the input for devfleet_sync_schedules.
+// SyncSchedulesInput is the input for chetter_sync_schedules.
 type SyncSchedulesInput struct {
 	Directory string `json:"directory" jsonschema:"Path to a directory containing schedule YAML files"`
 	Prune     bool   `json:"prune,omitempty" jsonschema:"Delete DB schedules not present in the YAML files"`
 }
 
-// SyncSchedulesOutput is the output for devfleet_sync_schedules.
+// SyncSchedulesOutput is the output for chetter_sync_schedules.
 type SyncSchedulesOutput struct {
 	Created int `json:"created"`
 	Updated int `json:"updated"`
 	Deleted int `json:"deleted"`
 }
 
-// TaskEventsInput is the input for devfleet_task_events.
+// TaskEventsInput is the input for chetter_task_events.
 type TaskEventsInput struct {
-	TaskID string `json:"task_id" jsonschema:"Task identifier returned by devfleet_submit_task"`
+	TaskID string `json:"task_id" jsonschema:"Task identifier returned by chetter_submit_task"`
 	Limit  int    `json:"limit,omitempty" jsonschema:"Maximum events to return, capped at 500"`
 }
 
-// TaskEventsOutput is the output for devfleet_task_events.
+// TaskEventsOutput is the output for chetter_task_events.
 type TaskEventsOutput struct {
 	Events []TaskEventRecord `json:"events"`
 }
@@ -183,13 +183,13 @@ type TaskEventRecord struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// TaskProgressInput is the input for devfleet_task_progress.
+// TaskProgressInput is the input for chetter_task_progress.
 type TaskProgressInput struct {
-	TaskID string `json:"task_id" jsonschema:"Task identifier returned by devfleet_submit_task"`
+	TaskID string `json:"task_id" jsonschema:"Task identifier returned by chetter_submit_task"`
 	Limit  int    `json:"limit,omitempty" jsonschema:"Maximum progress entries to return"`
 }
 
-// TaskProgressOutput is the output for devfleet_task_progress.
+// TaskProgressOutput is the output for chetter_task_progress.
 type TaskProgressOutput struct {
 	Entries []TaskProgressRecord `json:"entries"`
 }
@@ -202,46 +202,46 @@ type TaskProgressRecord struct {
 	Error   string    `json:"error,omitempty"`
 }
 
-// TaskLatestEventInput is the input for devfleet_task_latest_event.
+// TaskLatestEventInput is the input for chetter_task_latest_event.
 type TaskLatestEventInput struct {
-	TaskID string `json:"task_id" jsonschema:"Task identifier returned by devfleet_submit_task"`
+	TaskID string `json:"task_id" jsonschema:"Task identifier returned by chetter_submit_task"`
 }
 
-// TaskLatestEventOutput is the output for devfleet_task_latest_event.
+// TaskLatestEventOutput is the output for chetter_task_latest_event.
 type TaskLatestEventOutput struct {
 	Event   TaskEventRecord `json:"event"`
 	AgeSec  int             `json:"age_sec"`
 	IsStale bool            `json:"is_stale"`
 }
 
-// RunnerHealthInput is the input for devfleet_runner_health.
+// RunnerHealthInput is the input for chetter_runner_health.
 type RunnerHealthInput struct {
 	IncludeTasks bool `json:"include_tasks,omitempty" jsonschema:"Include per-task details for currently running tasks"`
 }
 
-// RunnerHealthOutput is the output for devfleet_runner_health.
+// RunnerHealthOutput is the output for chetter_runner_health.
 type RunnerHealthOutput struct {
 	Health store.RunnerFleetHealth `json:"health"`
 }
 
-// CancelTaskInput is the input for devfleet_cancel_task.
+// CancelTaskInput is the input for chetter_cancel_task.
 type CancelTaskInput struct {
 	TaskID string `json:"task_id" jsonschema:"Task identifier to cancel"`
 	Reason string `json:"reason,omitempty" jsonschema:"Optional cancellation reason"`
 }
 
-// CancelTaskOutput is the output for devfleet_cancel_task.
+// CancelTaskOutput is the output for chetter_cancel_task.
 type CancelTaskOutput struct {
 	Task TaskToolRecord `json:"task"`
 }
 
-// ClearQueueInput is the input for devfleet_clear_queue.
+// ClearQueueInput is the input for chetter_clear_queue.
 type ClearQueueInput struct {
 	Confirm          bool `json:"confirm" jsonschema:"Set true to clear queued task messages and cancel pending DB tasks"`
 	PreserveConsumer bool `json:"preserve_consumer,omitempty" jsonschema:"Set true to purge messages without resetting the JetStream durable task consumer"`
 }
 
-// ClearQueueOutput is the output for devfleet_clear_queue.
+// ClearQueueOutput is the output for chetter_clear_queue.
 type ClearQueueOutput struct {
 	Cleared               bool   `json:"cleared"`
 	CancelledPendingTasks int    `json:"cancelled_pending_tasks"`
@@ -252,29 +252,29 @@ type ClearQueueOutput struct {
 	ConsumerReset         bool   `json:"consumer_reset"`
 }
 
-// RegisterTools registers devfleet MCP tools.
+// RegisterTools registers chetter MCP tools.
 func RegisterTools(server *mcp.Server, svc *Service) {
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_submit_task", Description: "Submit a development task to the dev runner fleet with optional OpenCode agent, provider, model ID, and variant selection."}, svc.submitTaskTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_task_status", Description: "Get current status and result details for a devfleet task."}, svc.taskStatusTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_list_tasks", Description: "List recent devfleet tasks, optionally filtered by status."}, svc.listTasksTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_schedule_task", Description: "Create and activate a cron schedule that submits devfleet tasks."}, svc.scheduleTaskTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_run_schedule", Description: "Run a devfleet cron task schedule immediately by name."}, svc.runScheduleTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_list_schedules", Description: "List devfleet cron task schedules."}, svc.listSchedulesTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_delete_schedule", Description: "Delete a devfleet cron task schedule by name."}, svc.deleteScheduleTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_update_schedule", Description: "Update a devfleet cron task schedule by name. Only provided fields are changed."}, svc.updateScheduleTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_sync_schedules", Description: "Load schedule definitions from YAML files in a directory and upsert them into the database."}, svc.syncSchedulesTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_task_events", Description: "Get the full event history for a devfleet task."}, svc.taskEventsTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_task_progress", Description: "Get a distilled progress timeline for a devfleet task."}, svc.taskProgressTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_task_latest_event", Description: "Get the most recent event for a devfleet task."}, svc.taskLatestEventTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_runner_health", Description: "Check runner fleet health including running/stale task counts, active runner image versions, and per-task heartbeat age."}, svc.runnerHealthTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_cancel_task", Description: "Cancel a single devfleet task by ID. Only works for pending or running tasks."}, svc.cancelTaskTool)
-	mcp.AddTool(server, &mcp.Tool{Name: "devfleet_clear_queue", Description: "Clear queued devfleet tasks by purging task messages, resetting the durable task consumer, and cancelling pending DB tasks. Requires confirm=true."}, svc.clearQueueTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_submit_task", Description: "Submit a development task to the Chetter runner fleet with optional OpenCode agent, provider, model ID, and variant selection."}, svc.submitTaskTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_task_status", Description: "Get current status and result details for a chetter task."}, svc.taskStatusTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_list_tasks", Description: "List recent chetter tasks, optionally filtered by status."}, svc.listTasksTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_schedule_task", Description: "Create and activate a cron schedule that submits chetter tasks."}, svc.scheduleTaskTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_run_schedule", Description: "Run a chetter cron task schedule immediately by name."}, svc.runScheduleTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_list_schedules", Description: "List chetter cron task schedules."}, svc.listSchedulesTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_delete_schedule", Description: "Delete a chetter cron task schedule by name."}, svc.deleteScheduleTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_update_schedule", Description: "Update a chetter cron task schedule by name. Only provided fields are changed."}, svc.updateScheduleTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_sync_schedules", Description: "Load schedule definitions from YAML files in a directory and upsert them into the database."}, svc.syncSchedulesTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_task_events", Description: "Get the full event history for a chetter task."}, svc.taskEventsTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_task_progress", Description: "Get a distilled progress timeline for a chetter task."}, svc.taskProgressTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_task_latest_event", Description: "Get the most recent event for a chetter task."}, svc.taskLatestEventTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_runner_health", Description: "Check runner fleet health including running/stale task counts, active runner image versions, and per-task heartbeat age."}, svc.runnerHealthTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_cancel_task", Description: "Cancel a single chetter task by ID. Only works for pending or running tasks."}, svc.cancelTaskTool)
+	mcp.AddTool(server, &mcp.Tool{Name: "chetter_clear_queue", Description: "Clear queued chetter tasks by purging task messages, resetting the durable task consumer, and cancelling pending DB tasks. Requires confirm=true."}, svc.clearQueueTool)
 	if svc != nil && svc.arcane != nil && svc.arcane.IsConfigured() {
-		mcp.AddTool(server, &mcp.Tool{Name: "devfleet_arcane_scanner_status", Description: "Check if the Arcane Trivy vulnerability scanner is available and get its version."}, svc.arcaneScannerStatusTool)
-		mcp.AddTool(server, &mcp.Tool{Name: "devfleet_arcane_environment_summary", Description: "Get aggregated vulnerability counts across all images in the Arcane environment."}, svc.arcaneEnvironmentSummaryTool)
-		mcp.AddTool(server, &mcp.Tool{Name: "devfleet_arcane_list_images", Description: "List all Docker images in the Arcane environment with their IDs and tags."}, svc.arcaneListImagesTool)
-		mcp.AddTool(server, &mcp.Tool{Name: "devfleet_arcane_image_summary", Description: "Get vulnerability summary for a specific Docker image by its ID."}, svc.arcaneImageSummaryTool)
-		mcp.AddTool(server, &mcp.Tool{Name: "devfleet_arcane_list_vulnerabilities", Description: "List detailed vulnerabilities for an image with optional severity filtering and pagination."}, svc.arcaneListVulnerabilitiesTool)
+		mcp.AddTool(server, &mcp.Tool{Name: "chetter_arcane_scanner_status", Description: "Check if the Arcane Trivy vulnerability scanner is available and get its version."}, svc.arcaneScannerStatusTool)
+		mcp.AddTool(server, &mcp.Tool{Name: "chetter_arcane_environment_summary", Description: "Get aggregated vulnerability counts across all images in the Arcane environment."}, svc.arcaneEnvironmentSummaryTool)
+		mcp.AddTool(server, &mcp.Tool{Name: "chetter_arcane_list_images", Description: "List all Docker images in the Arcane environment with their IDs and tags."}, svc.arcaneListImagesTool)
+		mcp.AddTool(server, &mcp.Tool{Name: "chetter_arcane_image_summary", Description: "Get vulnerability summary for a specific Docker image by its ID."}, svc.arcaneImageSummaryTool)
+		mcp.AddTool(server, &mcp.Tool{Name: "chetter_arcane_list_vulnerabilities", Description: "List detailed vulnerabilities for an image with optional severity filtering and pagination."}, svc.arcaneListVulnerabilitiesTool)
 	}
 }
 
@@ -534,7 +534,7 @@ func (s *Service) clearQueueTool(ctx context.Context, _ *mcp.CallToolRequest, in
 	if err != nil {
 		return nil, ClearQueueOutput{}, fmt.Errorf("clear task messages: %w", err)
 	}
-	cancelled, err := s.store.ClearPendingTasks(ctx, "cancelled by devfleet_clear_queue")
+	cancelled, err := s.store.ClearPendingTasks(ctx, "cancelled by chetter_clear_queue")
 	if err != nil {
 		return nil, ClearQueueOutput{}, fmt.Errorf("cancel pending tasks: %w", err)
 	}

@@ -1,5 +1,5 @@
 # Build artifacts
-devfleet
+/chetter
 bin/
 runner/runner
 runner/mcp-bridge

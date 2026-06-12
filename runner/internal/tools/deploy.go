@@ -31,17 +31,17 @@ type Deploy struct {
 	Provider   DeployProvider
 	TaskID     string
 	Registry   string
-	DevfleetURL string
+	ChetterURL string
 }
 
 // NewDeploy creates a deploy tool handler.
-func NewDeploy(baseDir string, provider DeployProvider, taskID string, registry string, devfleetURL string) *Deploy {
+func NewDeploy(baseDir string, provider DeployProvider, taskID string, registry string, chetterURL string) *Deploy {
 	return &Deploy{
 		BaseDir:    baseDir,
 		Provider:   provider,
 		TaskID:     taskID,
 		Registry:   registry,
-		DevfleetURL: devfleetURL,
+		ChetterURL: chetterURL,
 	}
 }
 
@@ -73,9 +73,9 @@ func (d *Deploy) safeTaskID() string {
 func (d *Deploy) imageBase() string {
 	safeID := d.safeTaskID()
 	if d.Registry != "" {
-		return fmt.Sprintf("%s/devfleet-%s", d.Registry, safeID)
+		return fmt.Sprintf("%s/chetter-%s", d.Registry, safeID)
 	}
-	return fmt.Sprintf("devfleet-%s", safeID)
+	return fmt.Sprintf("chetter-%s", safeID)
 }
 
 func (d *Deploy) imageTag() string {
@@ -83,7 +83,7 @@ func (d *Deploy) imageTag() string {
 }
 
 func (d *Deploy) containerName() string {
-	return fmt.Sprintf("devfleet-%s", d.safeTaskID())
+	return fmt.Sprintf("chetter-%s", d.safeTaskID())
 }
 
 func (d *Deploy) resolveContainerName(args map[string]any) string {
@@ -163,10 +163,10 @@ func (d *Deploy) Build(ctx context.Context, args map[string]any) (any, error) {
 	}
 
 	return map[string]any{
-		"image":       versionedTag,
+		"image":        versionedTag,
 		"image_latest": latestTag,
-		"built":       true,
-		"provider":    string(d.Provider),
+		"built":        true,
+		"provider":     string(d.Provider),
 	}, nil
 }
 
@@ -268,8 +268,8 @@ func (d *Deploy) Run(ctx context.Context, args map[string]any) (any, error) {
 
 	url := fmt.Sprintf("http://localhost:%s", port)
 	host := ""
-	if d.Provider == DeployProviderPreview && d.DevfleetURL != "" {
-		host = fmt.Sprintf("%s.%s", strings.ReplaceAll(d.TaskID, "/", "-"), d.DevfleetURL)
+	if d.Provider == DeployProviderPreview && d.ChetterURL != "" {
+		host = fmt.Sprintf("%s.%s", strings.ReplaceAll(d.TaskID, "/", "-"), d.ChetterURL)
 		url = fmt.Sprintf("https://%s", host)
 	}
 
@@ -486,7 +486,7 @@ func (d *Deploy) Rollback(ctx context.Context, args map[string]any) (any, error)
 		return nil, err
 	}
 	if version == "" {
-		return nil, fmt.Errorf("image tag is required for rollback (e.g. devfleet-abc123:def4567)")
+		return nil, fmt.Errorf("image tag is required for rollback (e.g. chetter-abc123:def4567)")
 	}
 
 	name := d.resolveContainerName(args)
@@ -503,7 +503,7 @@ func (d *Deploy) Rollback(ctx context.Context, args map[string]any) (any, error)
 	dockerArgs := []string{"run", "-d", "--name", name, "-p", port + ":" + port}
 	envVars := getOptStringMap(args, "env")
 	for k, v := range envVars {
-		dockerArgs = append(dockerArgs, "-e", k + "=" + fmt.Sprint(v))
+		dockerArgs = append(dockerArgs, "-e", k+"="+fmt.Sprint(v))
 	}
 	dockerArgs = append(dockerArgs, version)
 
@@ -541,4 +541,3 @@ func detectDockerfile(baseDir string) string {
 	}
 	return ""
 }
-

@@ -1,4 +1,4 @@
-# Devfleet Runner
+# Chetter Runner
 
 Runs agent harnesses (OpenCode, Niffler) inside Kata Containers (micro-VMs) for strong isolation while proxying privileged operations (git, NATS, HTTP) through a runner-managed MCP server.
 
@@ -169,11 +169,11 @@ Or as a privileged container:
 
 ```bash
 # Build image
-docker build -f Dockerfile.runner -t devfleet/runner .
+docker build -f Dockerfile.runner -t chetter/runner .
 
 # Run with host containerd socket and KVM device.
 # host.docker.internal lets the container reach host NATS on Linux.
-docker run -d --name devfleet-runner \
+docker run -d --name chetter-runner \
   --privileged \
   --add-host=host.docker.internal:host-gateway \
   -v /run/containerd/containerd.sock:/run/containerd/containerd.sock \
@@ -181,12 +181,12 @@ docker run -d --name devfleet-runner \
   -v /var/lib/runner:/var/lib/runner \
   -v "$PWD/runner.docker.yaml:/etc/runner/runner.yaml:ro" \
   -p 18080:18080 \
-  devfleet/runner
+  chetter/runner
 ```
 
 The image sets `TMPDIR=/var/lib/runner/tmp` because `ctr` creates temporary mount points before asking host containerd to mount snapshots. That temp path must live on a bind mount that exists on both the runner container and the host.
 
-If the container exits immediately, check `docker logs devfleet-runner`. Common causes are NATS not listening on host port `4222`, a stale image that does not include `ctr`, or lack of access to the mounted containerd socket. If you see `ctr not found in PATH`, rebuild the image from the current `Dockerfile.runner`.
+If the container exits immediately, check `docker logs chetter-runner`. Common causes are NATS not listening on host port `4222`, a stale image that does not include `ctr`, or lack of access to the mounted containerd socket. If you see `ctr not found in PATH`, rebuild the image from the current `Dockerfile.runner`.
 
 If a task fails with `failed to mount /tmp/containerd-mount...`, rebuild the image so it uses the shared `TMPDIR`, then recreate the container.
 
@@ -194,7 +194,7 @@ If a task fails with `failed to mount /tmp/containerd-mount...`, rebuild the ima
 
 ```bash
 # Publish a NATS message
-nats pub devfleet.runner.tasks '{"task_id":"test-001","agent_image":"docker.io/library/alpine:latest","timeout_sec":60}'
+nats pub chetter.runner.tasks '{"task_id":"test-001","agent_image":"docker.io/library/alpine:latest","timeout_sec":60}'
 
 # Or use the Go test client
 go run test/local_task.go

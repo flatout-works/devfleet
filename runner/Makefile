@@ -1,5 +1,5 @@
-IMAGE ?= devfleet/runner
-CONTAINER ?= devfleet-runner
+IMAGE ?= chetter/runner
+CONTAINER ?= chetter-runner
 CONFIG ?= $(CURDIR)/runner.docker.yaml
 NATS_URL ?= nats://localhost:4222
 HOST_NATS ?= host.docker.internal
@@ -29,7 +29,7 @@ verify-image:
 		-v /var/lib/containerd:/var/lib/containerd \
 		-v /tmp:/tmp \
 		--entrypoint sh $(IMAGE) \
-		-lc 'which ctr && ctr version && test "$${TMPDIR}" = "/tmp/devfleet-runner"'
+		-lc 'which ctr && ctr version && test "$${TMPDIR}" = "/tmp/chetter-runner"'
 
 preflight-netns:
 	@test -d /run/netns || { echo '/run/netns does not exist; run: sudo mkdir -p /run/netns'; exit 1; }
@@ -90,8 +90,8 @@ lint: $(STATICCHECK)
 check: test vet lint
 
 coverage:
-	@go test ./... -coverprofile=/tmp/devfleet-runner-cover.out -count=1 -timeout 60s > /dev/null 2>&1; \
-	go tool cover -func=/tmp/devfleet-runner-cover.out | grep '^total:' | awk '{print "total        " $$3}'; \
+	@go test ./... -coverprofile=/tmp/chetter-runner-cover.out -count=1 -timeout 60s > /dev/null 2>&1; \
+	go tool cover -func=/tmp/chetter-runner-cover.out | grep '^total:' | awk '{print "total        " $$3}'; \
 	echo ""; \
 	go test ./... -cover -count=1 -timeout 60s 2>&1 | grep 'coverage:' | grep -v 'coverage: 0\.0%' | grep -v '/gen/' | sort -t':' -k2 -rn
-	@rm -f /tmp/devfleet-runner-cover.out
+	@rm -f /tmp/chetter-runner-cover.out

@@ -1,4 +1,4 @@
-// Package webhook handles GitHub webhook events for the Devfleet service.
+// Package webhook handles GitHub webhook events for the Chetter service.
 package webhook
 
 // Event payload structs matching the GitHub webhook JSON schema.
@@ -7,20 +7,20 @@ package webhook
 
 const (
 	// Action values for the pull_request event.
-	PullRequestActionOpened     = "opened"
+	PullRequestActionOpened      = "opened"
 	PullRequestActionSynchronize = "synchronize"
-	PullRequestActionReopened   = "reopened"
-	PullRequestActionLabeled    = "labeled"
+	PullRequestActionReopened    = "reopened"
+	PullRequestActionLabeled     = "labeled"
 
 	// EventType values for the X-GitHub-Event header.
 	EventTypePullRequest  = "pull_request"
 	EventTypeIssueComment = "issue_comment"
 
-	// DevfleetReviewLabel is the label we add to PRs that should be reviewed.
-	DevfleetReviewLabel = "devfleet-review"
+	// ChetterReviewLabel is the label we add to PRs that should be reviewed.
+	ChetterReviewLabel = "chetter-review"
 
 	// ReviewTrigger comment that users post to request a review.
-	ReviewTriggerCommand = "/devfleet-review"
+	ReviewTriggerCommand = "/chetter-review"
 )
 
 // PullRequestEvent is the top-level payload for a pull_request webhook event.
@@ -93,7 +93,7 @@ type Comment struct {
 
 // Issue is the issue/PR object (PRs come through the issues API).
 type Issue struct {
-	Number      int  `json:"number"`
+	Number      int `json:"number"`
 	PullRequest *struct {
 		URL string `json:"url"`
 	} `json:"pull_request,omitempty"`

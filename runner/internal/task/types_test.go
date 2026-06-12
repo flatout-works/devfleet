@@ -7,12 +7,12 @@ import (
 
 func TestTaskRequest_MarshalJSON(t *testing.T) {
 	req := TaskRequest{
-		TaskID:     "task-123",
-		AgentImage: "ghcr.io/flatout-works/flatout-dev-runner:latest",
-		Prompt:     "build me an api",
-		TimeoutSec: 3600,
+		TaskID:      "task-123",
+		AgentImage:  "ghcr.io/flatout-works/chetter-runner:latest",
+		Prompt:      "build me an api",
+		TimeoutSec:  3600,
 		MaxMemoryMB: 4096,
-		MaxCPU: 2,
+		MaxCPU:      2,
 		Env: map[string]string{
 			"LLM_PROVIDER": "synthetic",
 		},
@@ -73,8 +73,8 @@ func TestTaskResponse_MarshalJSON(t *testing.T) {
 
 func TestReport_MarshalJSON(t *testing.T) {
 	r := Report{
-		Status:  "success",
-		Summary: "service deployed",
+		Status:    "success",
+		Summary:   "service deployed",
 		Artifacts: []string{"api/openapi.yaml"},
 	}
 

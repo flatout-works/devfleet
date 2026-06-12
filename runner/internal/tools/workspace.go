@@ -105,5 +105,3 @@ func (w *Workspace) Bash(ctx context.Context, args map[string]any) (any, error) 
 	}
 	return result, nil
 }
-
-

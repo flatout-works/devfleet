@@ -120,40 +120,40 @@ cd ..
 
 # Build the stack image using the per-stack Dockerfile under tools/stacks/
 cd /opt/flatout/tools/stacks/go-sqlc-mysql
-docker build -t devfleet/backend:latest -f Dockerfile .
+docker build -t chetter/backend:latest -f Dockerfile .
 ```
 
 **Expected output:**
 ```
 [harness] Copying opencode binary...
 [harness] Building MCP bridge...
-[harness] Building Docker image devfleet/backend:latest (backend)...
+[harness] Building Docker image chetter/backend:latest (backend)...
 # ... docker build output ...
-[harness] Image built: devfleet/backend:latest
+[harness] Image built: chetter/backend:latest
 [harness] Done.
 ```
 
 Verify the image exists:
 
 ```bash
-docker images | grep devfleet/backend
-# devfleet/backend   latest   <hash>   <time>   <size>
+docker images | grep chetter/backend
+# chetter/backend   latest   <hash>   <time>   <size>
 ```
 
 **If building for containerd/Kata:** Import it after building:
 
 ```bash
 cd /opt/flatout/tools/stacks/go-sqlc-mysql
-IMPORT_CTR=1 docker build -t devfleet/backend:latest -f Dockerfile .
-docker save devfleet/backend:latest | sudo ctr -n devfleet-runner images import -
-# ... docker save ... | sudo ctr -n devfleet-runner images import -
+IMPORT_CTR=1 docker build -t chetter/backend:latest -f Dockerfile .
+docker save chetter/backend:latest | sudo ctr -n chetter-runner images import -
+# ... docker save ... | sudo ctr -n chetter-runner images import -
 ```
 
 Verify in containerd:
 
 ```bash
-sudo ctr -n devfleet-runner images list | grep devfleet/backend
-# devfleet/backend:latest ...
+sudo ctr -n chetter-runner images list | grep chetter/backend
+# chetter/backend:latest ...
 ```
 
 ---
@@ -175,7 +175,7 @@ Add the `execution` section (or modify it):
 ```yaml
 execution:
   mode: auto          # or docker, kata, local
-  harness: devfleet/backend:latest
+  harness: chetter/backend:latest
 ```
 
 **Before:**
@@ -194,19 +194,19 @@ git:
 execution:
   mode: auto
   runtime: ""
-  harness: devfleet/backend:latest
+  harness: chetter/backend:latest
 ```
 
 Restart the runner:
 
 ```bash
 # If running via systemd:
-sudo systemctl restart devfleet-runner
+sudo systemctl restart chetter-runner
 
 # If running in Docker:
 cd /opt/flatout/runner
-docker rm -f devfleet-runner 2>/dev/null
-docker run -d --name devfleet-runner \
+docker rm -f chetter-runner 2>/dev/null
+docker run -d --name chetter-runner \
   --privileged \
   -v /run/containerd:/run/containerd \
   --mount type=bind,source=/run/netns,target=/run/netns,bind-propagation=rshared \
@@ -216,7 +216,7 @@ docker run -d --name devfleet-runner \
   -v /var/lib/runner:/var/lib/runner \
   -v "/opt/flatout/runner/runner.docker.yaml:/etc/runner/runner.yaml:ro" \
   -p 18080:18080 \
-  devfleet/runner:latest
+  chetter/runner:latest
 ```
 
 ### Option B — Per-task override (specific tasks use it)
@@ -226,7 +226,7 @@ Don't change the config. Instead, send the image in each TaskRequest:
 ```json
 {
   "task_id": "task-001",
-  "agent_image": "devfleet/backend:latest",
+  "agent_image": "chetter/backend:latest",
   "prompt": "Create a new ConnectRPC service for project repositories with CRUD operations..."
 }
 ```
@@ -251,9 +251,9 @@ NATS_URL=nats://localhost:4222 go run test/smoke_task.go
 Or send manually via NATS CLI:
 
 ```bash
-nats pub devfleet.runner.tasks '{
+nats pub chetter.runner.tasks '{
   "task_id": "test-backend-skill-001",
-  "agent_image": "devfleet/backend:latest",
+  "agent_image": "chetter/backend:latest",
   "prompt": "Write a brief Go function that uses sqlc to query a TiDB table. Return only the function declaration.",
   "timeout_sec": 120
 }'
@@ -263,10 +263,10 @@ Watch the runner logs:
 
 ```bash
 # If running in Docker:
-docker logs -f devfleet-runner | grep -E "copied skills|skill|flatout-backend"
+docker logs -f chetter-runner | grep -E "copied skills|skill|flatout-backend"
 
 # If running as systemd:
-sudo journalctl -u devfleet-runner -f | grep -E "copied skills|skill"
+sudo journalctl -u chetter-runner -f | grep -E "copied skills|skill"
 ```
 
 ### What you should see
@@ -308,7 +308,7 @@ cat ~/.agents/skills/flatout-backend/SKILL.md | head -3
 echo ""
 
 echo "=== Step 2: Verify Docker image exists ==="
-docker images | grep devfleet/backend || { echo "Image missing! Build it from tools/stacks/go-sqlc-mysql/Dockerfile"; exit 1; }
+docker images | grep chetter/backend || { echo "Image missing! Build it from tools/stacks/go-sqlc-mysql/Dockerfile"; exit 1; }
 echo ""
 
 echo "=== Step 3: Verify runner config ==="
@@ -316,7 +316,7 @@ grep -A2 "execution:" /etc/runner/runner.yaml || { echo "No execution section in
 echo ""
 
 echo "=== Step 4: Send test task ==="
-nats pub devfleet.runner.tasks '{
+nats pub chetter.runner.tasks '{
   "task_id": "e2e-test-'"$(date +%s)"'",
   "prompt": "Write a minimal ConnectRPC Go handler for a GetUser endpoint using sqlc and TiDB. Include the service struct, the handler method with proper error handling, and a one-line comment showing the sqlc query annotation needed. Keep it under 30 lines.",
   "timeout_sec": 60
@@ -324,10 +324,10 @@ nats pub devfleet.runner.tasks '{
 
 echo ""
 echo "=== Step 5: Watch logs for skill loading ==="
-echo "Running: docker logs -f devfleet-runner | grep -E 'copied skills|flatout-backend'"
-docker logs -f devfleet-runner 2>&1 | grep -E "copied skills|flatout-backend|error" | head -10
+echo "Running: docker logs -f chetter-runner | grep -E 'copied skills|flatout-backend'"
+docker logs -f chetter-runner 2>&1 | grep -E "copied skills|flatout-backend|error" | head -10
 echo ""
-echo "Test complete. Check NATS for the result on subject: devfleet.tasks.<task_id>.status"
+echo "Test complete. Check NATS for the result on subject: chetter.tasks.<task_id>.status"
 ```
 
 Save as `test_skills_e2e.sh`, make executable (`chmod +x`), and run.
@@ -343,13 +343,13 @@ If you use **Kata Containers** (not Docker), you need the image in containerd, n
 ```bash
 # 1. Build Docker image
 cd /opt/flatout/tools/stacks/go-sqlc-mysql
-docker build -t devfleet/backend:latest -f Dockerfile .
+docker build -t chetter/backend:latest -f Dockerfile .
 
 # 2. Save and import into containerd
-docker save devfleet/backend:latest | sudo ctr -n devfleet-runner images import -
+docker save chetter/backend:latest | sudo ctr -n chetter-runner images import -
 
 # 3. Verify
-sudo ctr -n devfleet-runner images list | grep devfleet/backend
+sudo ctr -n chetter-runner images list | grep chetter/backend
 ```
 
 ### Skills directory at non-standard location
@@ -399,14 +399,14 @@ sudo nano /etc/runner/runner.yaml
 # Change: harness: <stack-image>
 
 # Restart runner
-sudo systemctl restart devfleet-runner
+sudo systemctl restart chetter-runner
 ```
 
 Or build the per-stack image from `tools/stacks/`:
 
 ```bash
 cd /opt/flatout/tools/stacks/go-sqlc-mysql
-docker build -t devfleet/opencode:latest -f Dockerfile .
+docker build -t chetter/opencode:latest -f Dockerfile .
 ```
 
 ---
@@ -428,7 +428,7 @@ When you change the server stack (new Go version, new tool, new pattern):
 4. **If you changed tool versions** (Go, buf, sqlc, goose), rebuild the stack image:
    ```bash
    cd /opt/flatout/tools/stacks/go-sqlc-mysql
-   docker build -t devfleet/backend:latest -f Dockerfile .
+   docker build -t chetter/backend:latest -f Dockerfile .
    ```
 
 ---
@@ -439,6 +439,6 @@ When you change the server stack (new Go version, new tool, new pattern):
 |------|-------|---------|-------------------|
 | 1. Sync skill | Workstation + Runner host | `git pull origin main` | `~/.agents/skills/flatout-backend/SKILL.md` exists |
 | 2. Install skill | Runner host | `cp -r tools/skills/flatout-backend/* ~/.agents/skills/flatout-backend/` | `ls ~/.agents/skills/` shows 5+ directories |
-| 3. Build image | Runner host | `cd tools/stacks/go-sqlc-mysql && docker build -t devfleet/backend:latest -f Dockerfile .` | `docker images \| grep devfleet/backend` |
-| 4. Configure | Runner host | Edit `runner.yaml` → add `execution.harness` | Config contains `harness: devfleet/backend:latest` |
+| 3. Build image | Runner host | `cd tools/stacks/go-sqlc-mysql && docker build -t chetter/backend:latest -f Dockerfile .` | `docker images \| grep chetter/backend` |
+| 4. Configure | Runner host | Edit `runner.yaml` → add `execution.harness` | Config contains `harness: chetter/backend:latest` |
 | 5. Verify | Runner host | Send NATS task, watch logs | `copied skills count=N` and skill in `<available_skills>` |

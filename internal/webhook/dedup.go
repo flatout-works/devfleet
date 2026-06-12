@@ -1,4 +1,4 @@
-// Package webhook handles GitHub webhook events for the Devfleet service.
+// Package webhook handles GitHub webhook events for the Chetter service.
 package webhook
 
 import (
@@ -11,10 +11,10 @@ import (
 // restarts mid-review, the review is simply lost (acceptable; GitHub will
 // not redeliver on 2xx).
 type RecentDeliveries struct {
-	mu       sync.Mutex
-	entries  map[string]time.Time
-	ttl      time.Duration
-	maxSize  int
+	mu      sync.Mutex
+	entries map[string]time.Time
+	ttl     time.Duration
+	maxSize int
 }
 
 // NewRecentDeliveries creates a tracker that holds IDs for ttl and caps the

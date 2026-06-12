@@ -16,8 +16,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/config"
-	"github.com/flatout-works/devfleet/runner/internal/task"
+	"github.com/flatout-works/chetter/runner/internal/config"
+	"github.com/flatout-works/chetter/runner/internal/task"
 )
 
 func TestBasicAuthHeader(t *testing.T) {
@@ -343,15 +343,15 @@ func TestGenerateOpenCodeConfig_UsesMCPKeyNotMCPservers(t *testing.T) {
 	}
 }
 
-func TestGenerateOpenCodeConfig_DevfleetMCPUnderMCPKey(t *testing.T) {
+func TestGenerateOpenCodeConfig_ChetterMCPUnderMCPKey(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 
 	r := &Runner{
 		cfg: &config.Config{
 			NATS:   config.NATSConfig{URL: "nats://localhost:4222"},
 			Runner: config.RunnerConfig{WorkspaceRoot: t.TempDir()},
-			DevfleetMCP: config.DevfleetMCPConfig{
-				URL:       "https://devfleet.example.com/mcp",
+			ChetterMCP: config.ChetterMCPConfig{
+				URL:       "https://chetter.example.com/mcp",
 				AuthToken: "test-token",
 			},
 		},
@@ -380,25 +380,25 @@ func TestGenerateOpenCodeConfig_DevfleetMCPUnderMCPKey(t *testing.T) {
 
 	mcps, ok := parsed["mcp"].(map[string]any)
 	if !ok {
-		t.Fatal("expected 'mcp' key to be present with devfleet configured")
+		t.Fatal("expected 'mcp' key to be present with chetter configured")
 	}
 
-	devfleet, ok := mcps["devfleet"].(map[string]any)
+	chetter, ok := mcps["chetter"].(map[string]any)
 	if !ok {
-		t.Fatal("expected devfleet MCP entry under 'mcp' key")
+		t.Fatal("expected chetter MCP entry under 'mcp' key")
 	}
-	if devfleet["type"] != "remote" {
-		t.Errorf("expected devfleet type 'remote', got %v", devfleet["type"])
+	if chetter["type"] != "remote" {
+		t.Errorf("expected chetter type 'remote', got %v", chetter["type"])
 	}
-	if devfleet["url"] != "https://devfleet.example.com/mcp" {
-		t.Errorf("unexpected devfleet URL: %v", devfleet["url"])
+	if chetter["url"] != "https://chetter.example.com/mcp" {
+		t.Errorf("unexpected chetter URL: %v", chetter["url"])
 	}
-	if devfleet["enabled"] != true {
-		t.Errorf("expected devfleet MCP enabled, got %v", devfleet["enabled"])
+	if chetter["enabled"] != true {
+		t.Errorf("expected chetter MCP enabled, got %v", chetter["enabled"])
 	}
-	headers, ok := devfleet["headers"].(map[string]any)
+	headers, ok := chetter["headers"].(map[string]any)
 	if !ok {
-		t.Fatal("expected devfleet MCP to include auth headers")
+		t.Fatal("expected chetter MCP to include auth headers")
 	}
 	if headers["Authorization"] != "Bearer test-token" {
 		t.Errorf("unexpected auth header: %v", headers["Authorization"])
@@ -498,18 +498,18 @@ func TestGenerateOpenCodeConfig_ValidatedByOpenCode(t *testing.T) {
 	}
 
 	tests := []struct {
-		name           string
-		devfleetURL    string
-		devfleetToken  string
+		name          string
+		chetterURL    string
+		chetterToken  string
 		includeBridge bool
 	}{
 		{
 			name: "minimal",
 		},
 		{
-			name:          "with_devfleet_mcp",
-			devfleetURL:   "https://devfleet.example.com/mcp",
-			devfleetToken: "test-token",
+			name:         "with_chetter_mcp",
+			chetterURL:   "https://chetter.example.com/mcp",
+			chetterToken: "test-token",
 		},
 	}
 
@@ -524,9 +524,9 @@ func TestGenerateOpenCodeConfig_ValidatedByOpenCode(t *testing.T) {
 				cfg: &config.Config{
 					NATS:   config.NATSConfig{URL: "nats://localhost:4222"},
 					Runner: config.RunnerConfig{WorkspaceRoot: t.TempDir()},
-					DevfleetMCP: config.DevfleetMCPConfig{
-						URL:       tt.devfleetURL,
-						AuthToken: tt.devfleetToken,
+					ChetterMCP: config.ChetterMCPConfig{
+						URL:       tt.chetterURL,
+						AuthToken: tt.chetterToken,
 					},
 				},
 			}

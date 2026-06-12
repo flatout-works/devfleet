@@ -105,7 +105,7 @@ func (s *Server) handleRequest(ctx context.Context, req *JSONRPCRequest) *JSONRP
 			"protocolVersion": "2024-11-05",
 			"capabilities":    map[string]any{},
 			"serverInfo": map[string]string{
-				"name":    "devfleet-runner",
+				"name":    "chetter-runner",
 				"version": "0.1.0",
 			},
 		})
@@ -182,10 +182,10 @@ type JSONRPCRequest struct {
 
 // JSONRPCResponse is a JSON-RPC 2.0 response message.
 type JSONRPCResponse struct {
-	JSONRPC string         `json:"jsonrpc"`
-	ID      any            `json:"id,omitempty"`
-	Result  any            `json:"result,omitempty"`
-	Error   *JSONRPCError  `json:"error,omitempty"`
+	JSONRPC string        `json:"jsonrpc"`
+	ID      any           `json:"id,omitempty"`
+	Result  any           `json:"result,omitempty"`
+	Error   *JSONRPCError `json:"error,omitempty"`
 }
 
 // JSONRPCError is a JSON-RPC 2.0 error.

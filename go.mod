@@ -1,4 +1,4 @@
-module github.com/flatout-works/devfleet
+module github.com/flatout-works/chetter
 
 go 1.26
 

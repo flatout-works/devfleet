@@ -1,4 +1,4 @@
-name: Devfleet
+name: Chetter
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
         with:
           go-version-file: go.mod
           cache-dependency-path: go.sum
-      - name: Check devfleet
+      - name: Check chetter
         run: make check
 
   arcane-sync:
@@ -26,10 +26,10 @@ jobs:
     steps:
       - name: Trigger Arcane GitOps sync
         env:
-          ARCANE_DEVFLEET_GITSYNC_URL: ${{ secrets.ARCANE_DEVFLEET_GITSYNC_URL }}
-          ARCANE_DEVFLEET_REDEPLOY_URL: ${{ secrets.ARCANE_DEVFLEET_REDEPLOY_URL }}
+          ARCANE_CHETTER_GITSYNC_URL: ${{ secrets.ARCANE_CHETTER_GITSYNC_URL }}
+          ARCANE_CHETTER_REDEPLOY_URL: ${{ secrets.ARCANE_CHETTER_REDEPLOY_URL }}
         run: |
-          url="${ARCANE_DEVFLEET_GITSYNC_URL:-$ARCANE_DEVFLEET_REDEPLOY_URL}"
+          url="${ARCANE_CHETTER_GITSYNC_URL:-$ARCANE_CHETTER_REDEPLOY_URL}"
           if [ -z "$url" ]; then
             echo "::notice::Arcane webhook secret is not configured; skipping Arcane sync"
             exit 0

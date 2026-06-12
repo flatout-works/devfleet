@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Devfleet - MCP control plane for AI coding agents</title>
-  <meta name="description" content="Devfleet is a small, self-hosted MCP control plane for sending software development work to a fleet of containerized AI coding agents." />
-  <link rel="icon" href="devfleet-mark.svg" type="image/svg+xml" />
+  <title>Chetter - MCP control plane for AI coding agents</title>
+  <meta name="description" content="Chetter is a small, self-hosted MCP control plane for sending software development work to a fleet of containerized AI coding agents." />
+  <link rel="icon" href="chetter-mark.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="Devfleet home">
-      <img src="devfleet-text.svg" alt="Devfleet" />
+    <a class="brand" href="#top" aria-label="Chetter home">
+      <img src="chetter-text.svg" alt="Chetter" />
     </a>
     <nav class="nav" aria-label="Primary navigation">
       <a href="#how-it-works">How it works</a>
       <a href="#tools">Tools</a>
       <a href="#deploy">Deploy</a>
-      <a href="https://github.com/flatout-works/devfleet">GitHub</a>
+      <a href="https://github.com/flatout-works/chetter">GitHub</a>
     </nav>
   </header>
 
@@ -26,27 +26,27 @@
       <div class="hero-copy">
         <p class="eyebrow">Self-hosted MCP control plane</p>
         <h1>Run AI coding agents like a small, observable fleet.</h1>
-        <p class="lead">Devfleet gives Claude, OpenCode, ChatGPT, curl, or your own agent stack a simple MCP tool surface for submitting development work to remote containerized runners.</p>
+        <p class="lead">Chetter gives Claude, OpenCode, ChatGPT, curl, or your own agent stack a simple MCP tool surface for submitting development work to remote containerized runners.</p>
         <div class="hero-actions" aria-label="Primary actions">
-          <a class="button primary" href="https://github.com/flatout-works/devfleet">View on GitHub</a>
+          <a class="button primary" href="https://github.com/flatout-works/chetter">View on GitHub</a>
           <a class="button secondary" href="#quick-start">Quick start</a>
         </div>
       </div>
-      <aside class="terminal-card" aria-label="Devfleet task example">
+      <aside class="terminal-card" aria-label="Chetter task example">
         <div class="terminal-top"><span></span><span></span><span></span><b>mcp tool call</b></div>
         <pre><code>{
-  "tool": "devfleet_submit_task",
+  "tool": "chetter_submit_task",
   "args": {
     "prompt": "Fix failing tests and open a PR.",
     "git_url": "https://github.com/org/app",
     "git_ref": "main",
-    "agent_image": "ghcr.io/.../devfleet-runner:main"
+    "agent_image": "ghcr.io/.../chetter-runner:main"
   }
 }</code></pre>
       </aside>
     </section>
 
-    <section class="metrics" aria-label="Devfleet summary">
+    <section class="metrics" aria-label="Chetter summary">
       <div><strong>20</strong><span>MCP tools</span></div>
       <div><strong>1</strong><span>durable queue</span></div>
       <div><strong>1</strong><span>database</span></div>
@@ -57,7 +57,7 @@
       <div>
         <p class="eyebrow">How it works</p>
         <h2>One Go service coordinates the work. Runners do the execution.</h2>
-        <p>Devfleet stays deliberately small: the MCP server accepts tool calls, stores task state, publishes work to NATS JetStream, and ingests runner events. Runners clone repositories, start coding agents, stream progress, and report results.</p>
+        <p>Chetter stays deliberately small: the MCP server accepts tool calls, stores task state, publishes work to NATS JetStream, and ingests runner events. Runners clone repositories, start coding agents, stream progress, and report results.</p>
       </div>
       <div class="flow-card">
         <div><b>1. Submit</b><span>MCP tool call creates a task row and publishes to JetStream.</span></div>
@@ -129,7 +129,7 @@
       <div>
         <p class="eyebrow">Tool surface</p>
         <h2>Everything is exposed as MCP tools.</h2>
-        <p>Devfleet is designed for AI clients first. Tool schemas are generated from Go structs, so the implementation and JSON contracts stay aligned.</p>
+        <p>Chetter is designed for AI clients first. Tool schemas are generated from Go structs, so the implementation and JSON contracts stay aligned.</p>
       </div>
       <div class="tool-groups">
         <article><b>Tasks</b><span>submit, status, list, cancel, clear queue</span></article>
@@ -148,8 +148,8 @@
       </div>
       <aside class="terminal-card compact" aria-label="Quick start commands">
         <div class="terminal-top"><span></span><span></span><span></span><b>shell</b></div>
-        <pre><code>git clone https://github.com/flatout-works/devfleet.git
-cd devfleet
+        <pre><code>git clone https://github.com/flatout-works/chetter.git
+cd chetter
 cp .env.example .env
 
 docker compose --env-file .env \
@@ -167,7 +167,7 @@ curl http://localhost:18088/healthz</code></pre>
       </div>
       <div class="deploy-row">
         <div><b>NATS</b><span>JetStream enabled, token auth</span></div>
-        <div><b>devfleet-mcp</b><span>Go MCP server on port 18088</span></div>
+        <div><b>chetter-mcp</b><span>Go MCP server on port 18088</span></div>
         <div><b>MySQL / TiDB</b><span>task state, schedules, event log</span></div>
         <div><b>runners</b><span>one image, many workers</span></div>
       </div>
@@ -176,9 +176,9 @@ curl http://localhost:18088/healthz</code></pre>
   </main>
 
   <footer class="site-footer">
-    <img src="devfleet-mark.svg" alt="" />
-    <p>Devfleet is a small MCP control plane for orchestrating remote AI coding agents.</p>
-    <a href="https://github.com/flatout-works/devfleet">github.com/flatout-works/devfleet</a>
+    <img src="chetter-mark.svg" alt="" />
+    <p>Chetter is a small MCP control plane for orchestrating remote AI coding agents.</p>
+    <a href="https://github.com/flatout-works/chetter">github.com/flatout-works/chetter</a>
   </footer>
 </body>
 </html>

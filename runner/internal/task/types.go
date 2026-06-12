@@ -63,7 +63,7 @@ func SocketPath(taskID string) string {
 	if len(shortID) > 12 {
 		shortID = shortID[len(shortID)-12:]
 	}
-	return fmt.Sprintf("/tmp/devfleet-%s.sock", shortID)
+	return fmt.Sprintf("/tmp/chetter-%s.sock", shortID)
 }
 
 // Report is sent by MCP-aware agents via the report_result tool.

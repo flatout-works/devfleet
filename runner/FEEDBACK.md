@@ -29,7 +29,7 @@ This file collects improvement ideas for turning the current runner prototype in
 
 ## NATS Design
 
-- Split subjects by event type, for example `devfleet.runner.tasks`, `devfleet.runner.tasks.<id>.cancel`, `devfleet.tasks.<id>.status`, `devfleet.tasks.<id>.logs`, and `devfleet.tasks.<id>.artifacts`.
+- Split subjects by event type, for example `chetter.runner.tasks`, `chetter.runner.tasks.<id>.cancel`, `chetter.tasks.<id>.status`, `chetter.tasks.<id>.logs`, and `chetter.tasks.<id>.artifacts`.
 - Consider JetStream for task durability, at-least-once delivery, result replay, and runner restarts.
 - Add queue groups so multiple runner instances can share the same task subject safely.
 - Use NATS auth and subject permissions so agents cannot publish arbitrary control messages.

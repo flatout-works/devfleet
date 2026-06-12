@@ -72,7 +72,7 @@ The spec-driven workflow for every generated API:
 10. **Test generation** — Generate tests from `docs/SPEC.md` using the `generate_tests_from_spec` and `generate_integration_tests` prompts. Every test function includes a `// SPEC: AC-*` or `// SPEC: INV-*` comment linking it to a stable spec ID. Uses standard Go `testing` package only.
 11. **MCP server** — Generate an MCP server that exposes API operations as tools, OpenAPI spec + docs + skill as resources, and common tasks as prompts.
 12. **Verification** — Run `go test ./...` to execute all tests. The spec renderer maps results back to `docs/SPEC.md` sections showing pass/fail/untested indicators.
-13. **Build & verify** — Run `make generate`, `go build ./...`, `go vet ./...`, `staticcheck ./...`, `docker build -t devfleet-api:latest .`, and all tests.
+13. **Build & verify** — Run `make generate`, `go build ./...`, `go vet ./...`, `staticcheck ./...`, `docker build -t chetter-api:latest .`, and all tests.
 
 ## Default Generated Stack
 
@@ -159,7 +159,7 @@ Follow the generated artifact templates. If `.flatout/templates/generated-docs.m
 - `docs/VISION.md` must include Summary, Users, Goals, Non-Goals, Success Criteria, and Open Questions.
 - `docs/SPEC.md` must use stable `AC-*` and `INV-*` IDs. Every operation has auth, input, output, errors, and at least one happy-path acceptance criterion.
 - `.env.example` must list runtime variables and never contain real secrets.
-- `Dockerfile` must be created early, even if `./cmd/server` is only a planned build target at this point. Keep it at repo root so `docker build -t devfleet-api:latest .` is the canonical container build.
+- `Dockerfile` must be created early, even if `./cmd/server` is only a planned build target at this point. Keep it at repo root so `docker build -t chetter-api:latest .` is the canonical container build.
 
 `docs/SPEC.md` follows the API spec template and must include these sections:
 
@@ -709,7 +709,7 @@ Rules:
 - Build with `CGO_ENABLED=0`, `-trimpath`, and stripped linker flags.
 - Run as `nonroot:nonroot`.
 - Do not add shell-form `RUN`, `CMD`, or health checks to the distroless runtime stage. Distroless has no shell or curl. Add health checks at the orchestrator level unless the generated binary explicitly supports a probe subcommand.
-- Verify with `docker build -t devfleet-api:latest .` before marking the project complete.
+- Verify with `docker build -t chetter-api:latest .` before marking the project complete.
 
 Create `.dockerignore` in the repo root:
 
@@ -774,9 +774,9 @@ build-docker:
 	docker build -t $(IMAGE):latest .
 
 run-docker: build-docker
-	docker run -d --name devfleet-api -p 8080:8080 $(IMAGE):latest
+	docker run -d --name chetter-api -p 8080:8080 $(IMAGE):latest
 
-IMAGE ?= devfleet-api
+IMAGE ?= chetter-api
 ```
 
 The `build-docker` target must work from the repo root and produce a runnable image.
@@ -996,7 +996,7 @@ User describes requirements
           ▼
 [8] Verification
      go test ./... -> spec renderer shows pass/fail/untested in docs/SPEC.md viewer
-     docker build -t devfleet-api:latest . → image builds and `docker run` starts the API
+     docker build -t chetter-api:latest . → image builds and `docker run` starts the API
           │
           ▼
 [9] Build & Deploy

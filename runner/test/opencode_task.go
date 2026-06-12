@@ -11,8 +11,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/task"
-	"github.com/flatout-works/devfleet/runner/test/testutil"
+	"github.com/flatout-works/chetter/runner/internal/task"
+	"github.com/flatout-works/chetter/runner/test/testutil"
 )
 
 func main() {
@@ -36,9 +36,9 @@ func main() {
 	taskID := fmt.Sprintf("opencode-%d", time.Now().Unix())
 	req := task.TaskRequest{
 		TaskID:     taskID,
-		AgentImage: "devfleet/opencode:latest",
+		AgentImage: "chetter/opencode:latest",
 		GitURL:     "https://github.com/octocat/Hello-World.git",
-		Prompt:     "Add a TODO comment to the top of README.md: <!-- TODO: This was edited by OpenCode inside Devfleet Runner -->",
+		Prompt:     "Add a TODO comment to the top of README.md: <!-- TODO: This was edited by OpenCode inside Chetter Runner -->",
 		TimeoutSec: 180,
 		Env: map[string]string{
 			"SYNTHETIC_API_KEY": apiKey,

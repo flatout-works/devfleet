@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/task"
-	"github.com/flatout-works/devfleet/runner/test/testutil"
+	"github.com/flatout-works/chetter/runner/internal/task"
+	"github.com/flatout-works/chetter/runner/test/testutil"
 )
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 		for scanner.Scan() {
 			line := scanner.Text()
 			fmt.Printf("[runner] %s\n", line)
-			if strings.Contains(line, "listening on devfleet.test.tasks") {
+			if strings.Contains(line, "listening on chetter.test.tasks") {
 				close(ready)
 				break
 			}
@@ -78,17 +78,17 @@ func main() {
 	taskID := fmt.Sprintf("poc-%d", time.Now().Unix())
 	req := task.TaskRequest{
 		TaskID:     taskID,
-		AgentImage: "devfleet/opencode:latest",
+		AgentImage: "chetter/opencode:latest",
 		GitURL:     "https://github.com/octocat/Hello-World.git",
-		Prompt:     "Add a TODO comment to the TOP of the README file that says '# TODO: This was edited by OpenCode via Devfleet Runner'. Then use git to commit with message 'Add TODO via OpenCode'.",
+		Prompt:     "Add a TODO comment to the TOP of the README file that says '# TODO: This was edited by OpenCode via Chetter Runner'. Then use git to commit with message 'Add TODO via OpenCode'.",
 		TimeoutSec: 300,
 		Env: map[string]string{
 			"SYNTHETIC_API_KEY": apiKey,
 		},
 	}
 
-	statusSubject := fmt.Sprintf("devfleet.test.results.%s.status", taskID)
-	ch, sub, err := testutil.PublishAndListen(nc, req, "devfleet.test.tasks", statusSubject)
+	statusSubject := fmt.Sprintf("chetter.test.results.%s.status", taskID)
+	ch, sub, err := testutil.PublishAndListen(nc, req, "chetter.test.tasks", statusSubject)
 	if err != nil {
 		log.Fatal(err)
 	}

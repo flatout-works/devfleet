@@ -13,8 +13,8 @@ func TestLoadValidConfig(t *testing.T) {
 nats:
   url: nats://example:4222
 runner:
-  listen_subject: devfleet.test.tasks
-  result_subject: devfleet.test.results
+  listen_subject: chetter.test.tasks
+  result_subject: chetter.test.results
   workspace_root: /tmp/ws
   max_concurrent: 5
 proxy:
@@ -45,7 +45,7 @@ embedded_nats: true
 	if cfg.NATS.URL != "nats://example:4222" {
 		t.Errorf("NATS.URL = %q, want nats://example:4222", cfg.NATS.URL)
 	}
-	if cfg.Runner.ListenSubject != "devfleet.test.tasks" {
+	if cfg.Runner.ListenSubject != "chetter.test.tasks" {
 		t.Errorf("Runner.ListenSubject = %q", cfg.Runner.ListenSubject)
 	}
 	if cfg.Runner.MaxConcurrent != 5 {
@@ -87,10 +87,10 @@ func TestLoadDefaultsAreApplied(t *testing.T) {
 	if cfg.NATS.URL != "nats://localhost:4222" {
 		t.Errorf("NATS.URL = %q, want default", cfg.NATS.URL)
 	}
-	if cfg.Runner.ListenSubject != "devfleet.runner.tasks" {
+	if cfg.Runner.ListenSubject != "chetter.runner.tasks" {
 		t.Errorf("ListenSubject = %q", cfg.Runner.ListenSubject)
 	}
-	if cfg.Runner.ResultSubject != "devfleet.tasks" {
+	if cfg.Runner.ResultSubject != "chetter.tasks" {
 		t.Errorf("ResultSubject = %q", cfg.Runner.ResultSubject)
 	}
 	if cfg.Runner.WorkspaceRoot != "/var/lib/runner" {
@@ -129,4 +129,3 @@ func TestLoadInvalidYAML(t *testing.T) {
 		t.Fatal("expected error for invalid YAML")
 	}
 }
-

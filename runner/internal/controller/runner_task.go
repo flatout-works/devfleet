@@ -20,11 +20,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/containerd"
-	"github.com/flatout-works/devfleet/runner/internal/mcp"
-	"github.com/flatout-works/devfleet/runner/internal/network"
-	"github.com/flatout-works/devfleet/runner/internal/task"
-	"github.com/flatout-works/devfleet/runner/internal/tools"
+	"github.com/flatout-works/chetter/runner/internal/containerd"
+	"github.com/flatout-works/chetter/runner/internal/mcp"
+	"github.com/flatout-works/chetter/runner/internal/network"
+	"github.com/flatout-works/chetter/runner/internal/task"
+	"github.com/flatout-works/chetter/runner/internal/tools"
 	nats "github.com/nats-io/nats.go"
 )
 
@@ -140,7 +140,7 @@ func (r *Runner) runTask(req task.TaskRequest, msg *nats.Msg) {
 		tools.DeployProvider(r.cfg.Deploy.Provider),
 		req.TaskID,
 		r.cfg.Deploy.Registry,
-		r.cfg.Deploy.DevfleetURL,
+		r.cfg.Deploy.ChetterURL,
 	)
 
 	mcpServer.RegisterTool("workspace_read_file", ws.ReadFile)
@@ -239,8 +239,8 @@ func (r *Runner) generateOpenCodeConfig(wsDir, socketPath string, includeRunnerM
 			"enabled": true,
 		}
 	}
-	// Always inject devfleet MCP if configured — available in both local and Kata modes.
-	if r.cfg.DevfleetMCP.URL != "" {
+	// Always inject chetter MCP if configured — available in both local and Kata modes.
+	if r.cfg.ChetterMCP.URL != "" {
 		mcpServers, _ := cfg["mcp"].(map[string]any)
 		if mcpServers == nil {
 			mcpServers = make(map[string]any)
@@ -248,16 +248,16 @@ func (r *Runner) generateOpenCodeConfig(wsDir, socketPath string, includeRunnerM
 		}
 		dfm := map[string]any{
 			"type":    "remote",
-			"url":     r.cfg.DevfleetMCP.URL,
+			"url":     r.cfg.ChetterMCP.URL,
 			"enabled": true,
 		}
-		if r.cfg.DevfleetMCP.AuthToken != "" {
+		if r.cfg.ChetterMCP.AuthToken != "" {
 			dfm["headers"] = map[string]string{
-				"Authorization": "Bearer " + r.cfg.DevfleetMCP.AuthToken,
+				"Authorization": "Bearer " + r.cfg.ChetterMCP.AuthToken,
 			}
 		}
-		mcpServers["devfleet"] = dfm
-		slog.Info("injected devfleet MCP into opencode config", "url", r.cfg.DevfleetMCP.URL)
+		mcpServers["chetter"] = dfm
+		slog.Info("injected chetter MCP into opencode config", "url", r.cfg.ChetterMCP.URL)
 	}
 
 	// Pre-approve permissions so agents don't get stuck on interactive prompts.
@@ -685,7 +685,7 @@ func (r *Runner) runKataAgent(ctx context.Context, session *task.TaskSession, re
 	}
 	if taskNet != nil {
 		proxyHost := taskNet.GatewayIP + r.cfg.Proxy.ListenAddr
-		env["DEVFLEET_PROXY"] = proxyHost
+		env["CHETTER_PROXY"] = proxyHost
 		env["HTTP_PROXY"] = "http://" + proxyHost
 		env["HTTPS_PROXY"] = "http://" + proxyHost
 		env["NO_PROXY"] = "localhost,127.0.0.1,.local"
@@ -697,7 +697,7 @@ func (r *Runner) runKataAgent(ctx context.Context, session *task.TaskSession, re
 		env[k] = v
 	}
 	addRunnerOwnedEnv(env)
-	resolvConfPath := session.WorkspaceDir + "/.devfleet-resolv.conf"
+	resolvConfPath := session.WorkspaceDir + "/.chetter-resolv.conf"
 	if err := os.WriteFile(resolvConfPath, []byte("nameserver "+taskNet.GatewayIP+"\noptions timeout:2 attempts:2\n"), 0644); err != nil {
 		r.publishStatusForRequest(req, "error", fmt.Sprintf("write task resolv.conf: %v", err), nil)
 		return
@@ -725,7 +725,7 @@ func (r *Runner) runKataAgent(ctx context.Context, session *task.TaskSession, re
 	}
 
 	cmd := r.resolveCommand(req)
-	if os.Getenv("DEVFLEET_KATA_PREFLIGHT") == "1" && len(req.Command) == 0 && req.Prompt != "" {
+	if os.Getenv("CHETTER_KATA_PREFLIGHT") == "1" && len(req.Command) == 0 && req.Prompt != "" {
 		mounts = append(mounts,
 			containerd.Mount{Type: "bind", Source: "/usr/bin/strace", Destination: "/usr/bin/strace", Options: []string{"rbind", "ro"}},
 			containerd.Mount{Type: "bind", Source: "/lib/x86_64-linux-gnu", Destination: "/lib/x86_64-linux-gnu", Options: []string{"rbind", "ro"}},
@@ -805,14 +805,14 @@ func (r *Runner) runLocalAgent(ctx context.Context, session *task.TaskSession, r
 	}
 	env = appendRunnerOwnedEnv(env)
 	env = append(env,
-		"GIT_AUTHOR_NAME=Devfleet Runner",
-		"GIT_AUTHOR_EMAIL=devfleet@devfleet.works",
-		"GIT_COMMITTER_NAME=Devfleet Runner",
-		"GIT_COMMITTER_EMAIL=devfleet@devfleet.works",
-		"DEVFLEET_AGENT_NAME="+req.Agent,
-		"DEVFLEET_MODEL_ID="+req.ProviderID+"/"+req.ModelID,
-		"DEVFLEET_RUNNER_IMAGE="+os.Getenv("DEVFLEET_RUNNER_IMAGE"),
-		"DEVFLEET_RUNNER_IMAGE_DIGEST="+os.Getenv("DEVFLEET_RUNNER_IMAGE_DIGEST"),
+		"GIT_AUTHOR_NAME=Chetter Runner",
+		"GIT_AUTHOR_EMAIL=chetter@chetter.flatout.works",
+		"GIT_COMMITTER_NAME=Chetter Runner",
+		"GIT_COMMITTER_EMAIL=chetter@chetter.flatout.works",
+		"CHETTER_AGENT_NAME="+req.Agent,
+		"CHETTER_MODEL_ID="+req.ProviderID+"/"+req.ModelID,
+		"CHETTER_RUNNER_IMAGE="+os.Getenv("CHETTER_RUNNER_IMAGE"),
+		"CHETTER_RUNNER_IMAGE_DIGEST="+os.Getenv("CHETTER_RUNNER_IMAGE_DIGEST"),
 	)
 
 	secret := generatePassword()
@@ -922,7 +922,7 @@ func (r *Runner) runDockerAgent(ctx context.Context, session *task.TaskSession, 
 	ln.Close()
 
 	const containerPort = 9999
-	containerName := "devfleet-task-" + req.TaskID
+	containerName := "chetter-task-" + req.TaskID
 
 	// Clean up any stale container with the same name.
 	exec.Command("docker", "rm", "-f", containerName).Run()
@@ -948,10 +948,10 @@ func (r *Runner) runDockerAgent(ctx context.Context, session *task.TaskSession, 
 		"-e", "XDG_CACHE_HOME=/workspace/.cache",
 		"-e", "OPENCODE_CONFIG=/opt/opencode/.config/opencode/config.json",
 		"-e", "OPENCODE_SERVER_PASSWORD=" + secret,
-		"-e", "DEVFLEET_AGENT_NAME=" + req.Agent,
-		"-e", "DEVFLEET_MODEL_ID=" + req.ProviderID + "/" + req.ModelID,
-		"-e", "DEVFLEET_RUNNER_IMAGE=" + os.Getenv("DEVFLEET_RUNNER_IMAGE"),
-		"-e", "DEVFLEET_RUNNER_IMAGE_DIGEST=" + os.Getenv("DEVFLEET_RUNNER_IMAGE_DIGEST"),
+		"-e", "CHETTER_AGENT_NAME=" + req.Agent,
+		"-e", "CHETTER_MODEL_ID=" + req.ProviderID + "/" + req.ModelID,
+		"-e", "CHETTER_RUNNER_IMAGE=" + os.Getenv("CHETTER_RUNNER_IMAGE"),
+		"-e", "CHETTER_RUNNER_IMAGE_DIGEST=" + os.Getenv("CHETTER_RUNNER_IMAGE_DIGEST"),
 	}
 
 	// Inject LLM env vars from the task request.

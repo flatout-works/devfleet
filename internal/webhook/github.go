@@ -1,6 +1,6 @@
-// Package webhook handles GitHub webhook events for the Devfleet service.
+// Package webhook handles GitHub webhook events for the Chetter service.
 // It verifies webhook signatures, parses events, and submits review tasks
-// to the devfleet service.
+// to the chetter service.
 package webhook
 
 import (
@@ -28,11 +28,11 @@ const (
 
 // Client wraps the GitHub API surface we need for PR reviews.
 type Client struct {
-	AppID            int64
-	InstallationID   int64
-	PrivateKey       *rsa.PrivateKey
-	HTTPClient       *http.Client
-	tokenCache       *tokenCache
+	AppID          int64
+	InstallationID int64
+	PrivateKey     *rsa.PrivateKey
+	HTTPClient     *http.Client
+	tokenCache     *tokenCache
 }
 
 // NewClient creates a Client from the given configuration. The private key
@@ -199,7 +199,7 @@ func (c *Client) HasLabel(ctx context.Context, repo string, prNumber int, label 
 }
 
 // CheckUserHasWriteAccess returns true if the given user has write or admin
-// permission on the repo. Used to gate the /devfleet-review comment trigger.
+// permission on the repo. Used to gate the /chetter-review comment trigger.
 func (c *Client) CheckUserHasWriteAccess(ctx context.Context, repo, username string) (bool, error) {
 	url := fmt.Sprintf("%s/repos/%s/collaborators/%s/permission", githubAPIBase, repo, username)
 	req, err := c.newRequest(ctx, http.MethodGet, url, nil)
@@ -302,5 +302,5 @@ func fetchInstallationToken(client *Client) (string, time.Time, error) {
 	return body.Token, body.ExpiresAt, nil
 }
 
-// CommentReviewFailed is posted on a PR when Devfleet fails to start a review.
-const CommentReviewFailed = "🤖 Devfleet review could not start. Please check the devfleet service logs."
+// CommentReviewFailed is posted on a PR when Chetter fails to start a review.
+const CommentReviewFailed = "🤖 Chetter review could not start. Please check the chetter service logs."

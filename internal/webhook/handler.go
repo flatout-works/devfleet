@@ -1,4 +1,4 @@
-// Package webhook handles GitHub webhook events for the Devfleet service.
+// Package webhook handles GitHub webhook events for the Chetter service.
 package webhook
 
 import (
@@ -25,7 +25,7 @@ type TaskSubmitter interface {
 // ReviewContext is the data passed to TaskSubmitter for a single review.
 type ReviewContext struct {
 	Trigger       string // "label", "fork", "file-pattern", "comment"
-	Repo          string // e.g., "devfleet/devfleet"
+	Repo          string // e.g., "chetter/chetter"
 	PRNumber      int
 	BaseRef       string
 	HeadRef       string
@@ -150,7 +150,7 @@ func (h *Handler) handlePullRequest(body []byte) {
 	}
 
 	// For "labeled" events, only proceed if the label added is ours.
-	if ev.Action == PullRequestActionLabeled && (ev.Label == nil || ev.Label.Name != DevfleetReviewLabel) {
+	if ev.Action == PullRequestActionLabeled && (ev.Label == nil || ev.Label.Name != ChetterReviewLabel) {
 		return
 	}
 
@@ -170,11 +170,11 @@ func (h *Handler) handlePullRequest(body []byte) {
 	if trigger != "label" {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		has, err := h.gh.HasLabel(ctx, repo, ev.Number, DevfleetReviewLabel)
+		has, err := h.gh.HasLabel(ctx, repo, ev.Number, ChetterReviewLabel)
 		if err != nil {
 			slog.Warn("webhook: check label", "repo", repo, "pr", ev.Number, "err", err)
 		} else if !has {
-			if err := h.gh.AddIssueLabel(ctx, repo, ev.Number, DevfleetReviewLabel); err != nil {
+			if err := h.gh.AddIssueLabel(ctx, repo, ev.Number, ChetterReviewLabel); err != nil {
 				slog.Warn("webhook: add label", "repo", repo, "pr", ev.Number, "err", err)
 			}
 		}
@@ -194,7 +194,7 @@ func (h *Handler) handlePullRequest(body []byte) {
 func (h *Handler) shouldReview(ev PullRequestEvent, repo string) (string, bool) {
 	// 1. Explicit label request.
 	for _, l := range ev.PullRequest.Labels {
-		if l.Name == DevfleetReviewLabel {
+		if l.Name == ChetterReviewLabel {
 			return "label", true
 		}
 	}
@@ -217,7 +217,7 @@ func (h *Handler) shouldReview(ev PullRequestEvent, repo string) (string, bool) 
 func (h *Handler) shouldReviewWithFiles(ev PullRequestEvent, repo string, files []string, filesErr error) (string, bool) {
 	// 1. Explicit label request.
 	for _, l := range ev.PullRequest.Labels {
-		if l.Name == DevfleetReviewLabel {
+		if l.Name == ChetterReviewLabel {
 			return "label", true
 		}
 	}
@@ -304,7 +304,7 @@ func (h *Handler) handleIssueComment(body []byte) {
 		return
 	}
 	if !hasAccess {
-		slog.Info("webhook: ignoring /devfleet-review from non-writer",
+		slog.Info("webhook: ignoring /chetter-review from non-writer",
 			"user", ev.Comment.User.Login, "repo", repo)
 		return
 	}
@@ -335,7 +335,7 @@ func (h *Handler) submitReview(ctx ReviewContext) {
 	token, err := h.gh.tokenCache.get(h.gh)
 	if err != nil {
 		slog.Error("webhook: get GitHub token", "err", err)
-		h.postCommentOnFailure(ctx, fmt.Sprintf("Devfleet could not authenticate: %v", err))
+		h.postCommentOnFailure(ctx, fmt.Sprintf("Chetter could not authenticate: %v", err))
 		return
 	}
 	ctx.GitHubToken = token

@@ -24,7 +24,7 @@ func TestImageBase(t *testing.T) {
 	t.Run("with registry", func(t *testing.T) {
 		d := &Deploy{TaskID: "Task-ABC", Registry: "ghcr.io"}
 		got := d.imageBase()
-		want := "ghcr.io/devfleet-task-abc"
+		want := "ghcr.io/chetter-task-abc"
 		if got != want {
 			t.Errorf("imageBase() = %q, want %q", got, want)
 		}
@@ -32,7 +32,7 @@ func TestImageBase(t *testing.T) {
 	t.Run("without registry", func(t *testing.T) {
 		d := &Deploy{TaskID: "Task-ABC", Registry: ""}
 		got := d.imageBase()
-		want := "devfleet-task-abc"
+		want := "chetter-task-abc"
 		if got != want {
 			t.Errorf("imageBase() = %q, want %q", got, want)
 		}
@@ -42,7 +42,7 @@ func TestImageBase(t *testing.T) {
 func TestImageTag(t *testing.T) {
 	d := &Deploy{TaskID: "Task-ABC"}
 	got := d.imageTag()
-	want := "devfleet-task-abc:latest"
+	want := "chetter-task-abc:latest"
 	if got != want {
 		t.Errorf("imageTag() = %q, want %q", got, want)
 	}
@@ -51,7 +51,7 @@ func TestImageTag(t *testing.T) {
 func TestContainerName(t *testing.T) {
 	d := &Deploy{TaskID: "Task-ABC"}
 	got := d.containerName()
-	want := "devfleet-task-abc"
+	want := "chetter-task-abc"
 	if got != want {
 		t.Errorf("containerName() = %q, want %q", got, want)
 	}
@@ -114,7 +114,7 @@ func TestResolvePort(t *testing.T) {
 }
 
 func TestNewDeploy(t *testing.T) {
-	d := NewDeploy("/tmp", DeployProviderLocal, "Task-1", "ghcr.io", "http://devfleet.local")
+	d := NewDeploy("/tmp", DeployProviderLocal, "Task-1", "ghcr.io", "http://chetter.local")
 	if d.BaseDir != "/tmp" {
 		t.Errorf("BaseDir = %q, want /tmp", d.BaseDir)
 	}
@@ -127,7 +127,7 @@ func TestNewDeploy(t *testing.T) {
 	if d.Registry != "ghcr.io" {
 		t.Errorf("Registry = %q, want ghcr.io", d.Registry)
 	}
-	if d.DevfleetURL != "http://devfleet.local" {
-		t.Errorf("DevfleetURL = %q, want http://devfleet.local", d.DevfleetURL)
+	if d.ChetterURL != "http://chetter.local" {
+		t.Errorf("ChetterURL = %q, want http://chetter.local", d.ChetterURL)
 	}
 }

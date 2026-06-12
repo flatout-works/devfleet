@@ -7,13 +7,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/task"
+	"github.com/flatout-works/chetter/runner/internal/task"
 	"github.com/nats-io/nats.go"
 )
 
 const (
-	DefaultTasksSubject  = "devfleet.runner.tasks"
-	DefaultStatusFmt     = "devfleet.tasks.%s.status"
+	DefaultTasksSubject = "chetter.runner.tasks"
+	DefaultStatusFmt    = "chetter.tasks.%s.status"
 )
 
 func ConnectNATS() *nats.Conn {

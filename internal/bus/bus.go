@@ -1,4 +1,4 @@
-// Package bus wraps NATS and JetStream for devfleet task transport.
+// Package bus wraps NATS and JetStream for chetter task transport.
 package bus
 
 import (
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flatout-works/devfleet/internal/config"
+	"github.com/flatout-works/chetter/internal/config"
 	"github.com/nats-io/nats.go"
 )
 
@@ -56,8 +56,8 @@ func Connect(cfg config.Config) (*Client, error) {
 }
 
 // PublishCancel sends a cancellation notification for the given task ID
-// on the pattern devfleet.tasks.<taskID>.cancel. Runners subscribe to
-// devfleet.tasks.>.cancel via a push subscription.
+// on the pattern chetter.tasks.<taskID>.cancel. Runners subscribe to
+// chetter.tasks.>.cancel via a push subscription.
 func (c *Client) PublishCancel(taskID string) error {
 	prefix := strings.TrimSuffix(c.cfg.EventSubject, ">")
 	subject := prefix + taskID + ".cancel"

@@ -137,4 +137,3 @@ func TestBashDefaultTimeout(t *testing.T) {
 		t.Error("unexpected nil result")
 	}
 }
-

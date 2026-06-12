@@ -1,4 +1,4 @@
-// Package store persists devfleet state in a TiDB/MySQL-compatible database.
+// Package store persists chetter state in a TiDB/MySQL-compatible database.
 package store
 
 import (
@@ -187,7 +187,7 @@ func (s *Store) Ping(ctx context.Context) error {
 	return s.db.PingContext(ctx)
 }
 
-// ApplySchema creates the devfleet tables if they do not exist.
+// ApplySchema creates the chetter tables if they do not exist.
 func (s *Store) ApplySchema(ctx context.Context) error {
 	for _, stmt := range schemaStatements {
 		if _, err := s.db.ExecContext(ctx, stmt); err != nil {
@@ -211,17 +211,17 @@ func (s *Store) ensureTaskMetadataColumns(ctx context.Context) error {
 		name string
 		ddl  string
 	}{
-		{"agent", "ALTER TABLE devfleet_tasks ADD COLUMN agent VARCHAR(128) NULL AFTER agent_image"},
-		{"provider_id", "ALTER TABLE devfleet_tasks ADD COLUMN provider_id VARCHAR(128) NULL AFTER agent_image"},
-		{"model_id", "ALTER TABLE devfleet_tasks ADD COLUMN model_id VARCHAR(255) NULL AFTER provider_id"},
-		{"variant_id", "ALTER TABLE devfleet_tasks ADD COLUMN variant_id VARCHAR(128) NULL AFTER model_id"},
-		{"opencode_session_id", "ALTER TABLE devfleet_tasks ADD COLUMN opencode_session_id VARCHAR(128) NULL AFTER variant_id"},
-		{"runner_image_digest", "ALTER TABLE devfleet_tasks ADD COLUMN runner_image_digest VARCHAR(255) NULL AFTER opencode_session_id"},
-		{"commit_author_name", "ALTER TABLE devfleet_tasks ADD COLUMN commit_author_name VARCHAR(128) NULL AFTER runner_image_digest"},
-		{"commit_author_email", "ALTER TABLE devfleet_tasks ADD COLUMN commit_author_email VARCHAR(255) NULL AFTER commit_author_name"},
+		{"agent", "ALTER TABLE chetter_tasks ADD COLUMN agent VARCHAR(128) NULL AFTER agent_image"},
+		{"provider_id", "ALTER TABLE chetter_tasks ADD COLUMN provider_id VARCHAR(128) NULL AFTER agent_image"},
+		{"model_id", "ALTER TABLE chetter_tasks ADD COLUMN model_id VARCHAR(255) NULL AFTER provider_id"},
+		{"variant_id", "ALTER TABLE chetter_tasks ADD COLUMN variant_id VARCHAR(128) NULL AFTER model_id"},
+		{"opencode_session_id", "ALTER TABLE chetter_tasks ADD COLUMN opencode_session_id VARCHAR(128) NULL AFTER variant_id"},
+		{"runner_image_digest", "ALTER TABLE chetter_tasks ADD COLUMN runner_image_digest VARCHAR(255) NULL AFTER opencode_session_id"},
+		{"commit_author_name", "ALTER TABLE chetter_tasks ADD COLUMN commit_author_name VARCHAR(128) NULL AFTER runner_image_digest"},
+		{"commit_author_email", "ALTER TABLE chetter_tasks ADD COLUMN commit_author_email VARCHAR(255) NULL AFTER commit_author_name"},
 	}
 	for _, column := range columns {
-		exists, err := s.columnExists(ctx, "devfleet_tasks", column.name)
+		exists, err := s.columnExists(ctx, "chetter_tasks", column.name)
 		if err != nil {
 			return err
 		}
@@ -229,7 +229,7 @@ func (s *Store) ensureTaskMetadataColumns(ctx context.Context) error {
 			continue
 		}
 		if _, err := s.db.ExecContext(ctx, column.ddl); err != nil {
-			return fmt.Errorf("add devfleet_tasks.%s: %w", column.name, err)
+			return fmt.Errorf("add chetter_tasks.%s: %w", column.name, err)
 		}
 	}
 	return nil
@@ -240,13 +240,13 @@ func (s *Store) ensureScheduleMetadataColumns(ctx context.Context) error {
 		name string
 		ddl  string
 	}{
-		{"agent", "ALTER TABLE devfleet_schedules ADD COLUMN agent VARCHAR(128) NULL AFTER agent_image"},
-		{"provider_id", "ALTER TABLE devfleet_schedules ADD COLUMN provider_id VARCHAR(128) NULL AFTER agent"},
-		{"model_id", "ALTER TABLE devfleet_schedules ADD COLUMN model_id VARCHAR(255) NULL AFTER provider_id"},
-		{"variant_id", "ALTER TABLE devfleet_schedules ADD COLUMN variant_id VARCHAR(128) NULL AFTER model_id"},
+		{"agent", "ALTER TABLE chetter_schedules ADD COLUMN agent VARCHAR(128) NULL AFTER agent_image"},
+		{"provider_id", "ALTER TABLE chetter_schedules ADD COLUMN provider_id VARCHAR(128) NULL AFTER agent"},
+		{"model_id", "ALTER TABLE chetter_schedules ADD COLUMN model_id VARCHAR(255) NULL AFTER provider_id"},
+		{"variant_id", "ALTER TABLE chetter_schedules ADD COLUMN variant_id VARCHAR(128) NULL AFTER model_id"},
 	}
 	for _, column := range columns {
-		exists, err := s.columnExists(ctx, "devfleet_schedules", column.name)
+		exists, err := s.columnExists(ctx, "chetter_schedules", column.name)
 		if err != nil {
 			return err
 		}
@@ -254,7 +254,7 @@ func (s *Store) ensureScheduleMetadataColumns(ctx context.Context) error {
 			continue
 		}
 		if _, err := s.db.ExecContext(ctx, column.ddl); err != nil {
-			return fmt.Errorf("add devfleet_schedules.%s: %w", column.name, err)
+			return fmt.Errorf("add chetter_schedules.%s: %w", column.name, err)
 		}
 	}
 	return nil
@@ -265,23 +265,23 @@ func (s *Store) ensureRunnerMetadataColumns(ctx context.Context) error {
 		name string
 		ddl  string
 	}{
-		{"image_ref", "ALTER TABLE devfleet_runners ADD COLUMN image_ref VARCHAR(512) NULL AFTER status"},
-		{"image_digest", "ALTER TABLE devfleet_runners ADD COLUMN image_digest VARCHAR(255) NULL AFTER image_ref"},
-		{"version", "ALTER TABLE devfleet_runners ADD COLUMN version VARCHAR(128) NULL AFTER image_digest"},
-		{"listen_subject", "ALTER TABLE devfleet_runners ADD COLUMN listen_subject VARCHAR(255) NULL AFTER version"},
-		{"result_subject", "ALTER TABLE devfleet_runners ADD COLUMN result_subject VARCHAR(255) NULL AFTER listen_subject"},
-		{"max_concurrent", "ALTER TABLE devfleet_runners ADD COLUMN max_concurrent INT NOT NULL DEFAULT 0 AFTER result_subject"},
-		{"running_tasks", "ALTER TABLE devfleet_runners ADD COLUMN running_tasks INT NOT NULL DEFAULT 0 AFTER max_concurrent"},
-		{"available_slots", "ALTER TABLE devfleet_runners ADD COLUMN available_slots INT NOT NULL DEFAULT 0 AFTER running_tasks"},
-		{"total_started", "ALTER TABLE devfleet_runners ADD COLUMN total_started BIGINT NOT NULL DEFAULT 0 AFTER available_slots"},
-		{"total_completed", "ALTER TABLE devfleet_runners ADD COLUMN total_completed BIGINT NOT NULL DEFAULT 0 AFTER total_started"},
-		{"total_errors", "ALTER TABLE devfleet_runners ADD COLUMN total_errors BIGINT NOT NULL DEFAULT 0 AFTER total_completed"},
-		{"started_at", "ALTER TABLE devfleet_runners ADD COLUMN started_at DATETIME(6) NULL AFTER total_errors"},
-		{"first_seen_at", "ALTER TABLE devfleet_runners ADD COLUMN first_seen_at DATETIME(6) NULL AFTER started_at"},
-		{"updated_at", "ALTER TABLE devfleet_runners ADD COLUMN updated_at DATETIME(6) NULL AFTER last_seen_at"},
+		{"image_ref", "ALTER TABLE chetter_runners ADD COLUMN image_ref VARCHAR(512) NULL AFTER status"},
+		{"image_digest", "ALTER TABLE chetter_runners ADD COLUMN image_digest VARCHAR(255) NULL AFTER image_ref"},
+		{"version", "ALTER TABLE chetter_runners ADD COLUMN version VARCHAR(128) NULL AFTER image_digest"},
+		{"listen_subject", "ALTER TABLE chetter_runners ADD COLUMN listen_subject VARCHAR(255) NULL AFTER version"},
+		{"result_subject", "ALTER TABLE chetter_runners ADD COLUMN result_subject VARCHAR(255) NULL AFTER listen_subject"},
+		{"max_concurrent", "ALTER TABLE chetter_runners ADD COLUMN max_concurrent INT NOT NULL DEFAULT 0 AFTER result_subject"},
+		{"running_tasks", "ALTER TABLE chetter_runners ADD COLUMN running_tasks INT NOT NULL DEFAULT 0 AFTER max_concurrent"},
+		{"available_slots", "ALTER TABLE chetter_runners ADD COLUMN available_slots INT NOT NULL DEFAULT 0 AFTER running_tasks"},
+		{"total_started", "ALTER TABLE chetter_runners ADD COLUMN total_started BIGINT NOT NULL DEFAULT 0 AFTER available_slots"},
+		{"total_completed", "ALTER TABLE chetter_runners ADD COLUMN total_completed BIGINT NOT NULL DEFAULT 0 AFTER total_started"},
+		{"total_errors", "ALTER TABLE chetter_runners ADD COLUMN total_errors BIGINT NOT NULL DEFAULT 0 AFTER total_completed"},
+		{"started_at", "ALTER TABLE chetter_runners ADD COLUMN started_at DATETIME(6) NULL AFTER total_errors"},
+		{"first_seen_at", "ALTER TABLE chetter_runners ADD COLUMN first_seen_at DATETIME(6) NULL AFTER started_at"},
+		{"updated_at", "ALTER TABLE chetter_runners ADD COLUMN updated_at DATETIME(6) NULL AFTER last_seen_at"},
 	}
 	for _, column := range columns {
-		exists, err := s.columnExists(ctx, "devfleet_runners", column.name)
+		exists, err := s.columnExists(ctx, "chetter_runners", column.name)
 		if err != nil {
 			return err
 		}
@@ -289,7 +289,7 @@ func (s *Store) ensureRunnerMetadataColumns(ctx context.Context) error {
 			continue
 		}
 		if _, err := s.db.ExecContext(ctx, column.ddl); err != nil {
-			return fmt.Errorf("add devfleet_runners.%s: %w", column.name, err)
+			return fmt.Errorf("add chetter_runners.%s: %w", column.name, err)
 		}
 	}
 	return nil
@@ -319,10 +319,10 @@ func (s *Store) InsertTask(ctx context.Context, in TaskInput) error {
 	}
 	now := time.Now().UTC()
 	_, err = s.db.ExecContext(ctx, `
-		INSERT INTO devfleet_tasks
+		INSERT INTO chetter_tasks
 			(id, status, prompt, git_url, git_ref, agent_image, agent, provider_id, model_id, variant_id, commit_author_name, commit_author_email, skills, env, timeout_sec, created_at, updated_at)
 		VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, in.ID, in.Prompt, in.GitURL, in.GitRef, in.AgentImage, in.Agent, in.ProviderID, in.ModelID, in.VariantID, "Devfleet", "devfleet@devfleet.works", string(skills), string(env), in.TimeoutSec, now, now)
+	`, in.ID, in.Prompt, in.GitURL, in.GitRef, in.AgentImage, in.Agent, in.ProviderID, in.ModelID, in.VariantID, "Chetter", "chetter@chetter.flatout.works", string(skills), string(env), in.TimeoutSec, now, now)
 	if err != nil {
 		return fmt.Errorf("insert task: %w", err)
 	}
@@ -380,7 +380,7 @@ func (s *Store) CancelTask(ctx context.Context, taskID, reason string) (TaskReco
 	}
 	now := time.Now().UTC()
 	_, err := s.db.ExecContext(ctx, `
-		UPDATE devfleet_tasks
+		UPDATE chetter_tasks
 		SET status = 'cancelled', error = ?, ended_at = COALESCE(ended_at, ?), updated_at = ?
 		WHERE id = ? AND status IN ('pending', 'running')
 	`, reason, now, now, taskID)
@@ -393,11 +393,11 @@ func (s *Store) CancelTask(ctx context.Context, taskID, reason string) (TaskReco
 // ClearPendingTasks moves queued DB tasks out of the pending queue.
 func (s *Store) ClearPendingTasks(ctx context.Context, reason string) (int, error) {
 	if reason == "" {
-		reason = "cancelled by devfleet queue clear"
+		reason = "cancelled by chetter queue clear"
 	}
 	now := time.Now().UTC()
 	result, err := s.db.ExecContext(ctx, `
-		UPDATE devfleet_tasks
+		UPDATE chetter_tasks
 		SET status = 'cancelled', error = ?, ended_at = COALESCE(ended_at, ?), updated_at = ?
 		WHERE status = 'pending'
 	`, reason, now, now)
@@ -415,7 +415,7 @@ func (s *Store) ClearPendingTasks(ctx context.Context, reason string) (int, erro
 // within their timeout + grace period and marks them as error.
 func (s *Store) ReapStaleTasks(ctx context.Context, grace time.Duration) (int, error) {
 	result, err := s.db.ExecContext(ctx, `
-		UPDATE devfleet_tasks
+		UPDATE chetter_tasks
 		SET status = 'error',
 		    error = CONCAT('runner timeout: no heartbeat for ', TIMESTAMPDIFF(SECOND, updated_at, NOW()), ' seconds (timeout was ', timeout_sec, 's)'),
 		    ended_at = ?,
@@ -440,7 +440,7 @@ func (s *Store) ReapStaleTasks(ctx context.Context, grace time.Duration) (int, e
 func (s *Store) ReapStalePendingTasks(ctx context.Context, grace time.Duration) (int, error) {
 	now := time.Now().UTC()
 	result, err := s.db.ExecContext(ctx, `
-		UPDATE devfleet_tasks
+		UPDATE chetter_tasks
 		SET status = 'cancelled',
 		    error = CONCAT('pending timeout: no runner picked up task within ', TIMESTAMPDIFF(SECOND, created_at, NOW()), ' seconds'),
 		    ended_at = ?,
@@ -521,7 +521,7 @@ func (s *Store) GetRunnerFleetHealth(ctx context.Context, maxEventSecForActive, 
 	health := RunnerFleetHealth{GeneratedAt: time.Now().UTC()}
 
 	rows, err := s.db.QueryContext(ctx, `
-		SELECT status, COUNT(*) FROM devfleet_tasks GROUP BY status
+		SELECT status, COUNT(*) FROM chetter_tasks GROUP BY status
 	`)
 	if err != nil {
 		return health, fmt.Errorf("count by status: %w", err)
@@ -552,7 +552,7 @@ func (s *Store) GetRunnerFleetHealth(ctx context.Context, maxEventSecForActive, 
 	runningRows, err := s.db.QueryContext(ctx, `
 		SELECT id, prompt, summary, model_id, runner_image_digest, started_at,
 		       TIMESTAMPDIFF(SECOND, updated_at, NOW()) AS last_event_sec
-		FROM devfleet_tasks
+		FROM chetter_tasks
 		WHERE status = 'running'
 		ORDER BY started_at ASC
 	`)
@@ -602,7 +602,7 @@ func (s *Store) GetRunnerFleetHealth(ctx context.Context, maxEventSecForActive, 
 		       max_concurrent, running_tasks, available_slots, total_started, total_completed, total_errors,
 		       first_seen_at, last_seen_at, started_at, metadata,
 		       TIMESTAMPDIFF(SECOND, last_seen_at, NOW()) AS last_seen_sec
-		FROM devfleet_runners
+		FROM chetter_runners
 		ORDER BY last_seen_at DESC
 	`)
 	if err != nil {
@@ -683,7 +683,7 @@ func (s *Store) UpsertRunnerHeartbeat(ctx context.Context, hb RunnerHeartbeat) e
 		return fmt.Errorf("marshal runner metadata: %w", err)
 	}
 	_, err = s.db.ExecContext(ctx, `
-		INSERT INTO devfleet_runners
+		INSERT INTO chetter_runners
 			(id, status, image_ref, image_digest, version, listen_subject, result_subject,
 			 max_concurrent, running_tasks, available_slots, total_started, total_completed, total_errors,
 			 started_at, first_seen_at, last_seen_at, updated_at, metadata)
@@ -744,7 +744,7 @@ func (s *Store) UpdateTaskFromResponse(ctx context.Context, resp TaskResponse) e
 		return fmt.Errorf("task_id is required")
 	}
 	_, err := s.db.ExecContext(ctx, `
-		UPDATE devfleet_tasks
+		UPDATE chetter_tasks
 		SET status = ?, summary = ?, error = ?,
 			provider_id = COALESCE(NULLIF(?, ''), provider_id),
 			model_id = COALESCE(NULLIF(?, ''), model_id),
@@ -763,7 +763,7 @@ func (s *Store) UpdateTaskFromResponse(ctx context.Context, resp TaskResponse) e
 // InsertEvent persists a raw task event payload.
 func (s *Store) InsertEvent(ctx context.Context, id, taskID, subject, status string, payload []byte) error {
 	_, err := s.db.ExecContext(ctx, `
-		INSERT INTO devfleet_task_events (id, task_id, subject, status, payload, created_at)
+		INSERT INTO chetter_task_events (id, task_id, subject, status, payload, created_at)
 		VALUES (?, ?, ?, ?, ?, ?)
 	`, id, taskID, subject, status, string(payload), time.Now().UTC())
 	if err != nil {
@@ -780,7 +780,7 @@ func (s *Store) CreateSchedule(ctx context.Context, in ScheduleInput) (ScheduleR
 	}
 	now := time.Now().UTC()
 	_, err = s.db.ExecContext(ctx, `
-		INSERT INTO devfleet_schedules
+		INSERT INTO chetter_schedules
 			(id, name, cron_expr, prompt, git_url, git_ref, agent_image, agent, provider_id, model_id, variant_id, skills, timeout_sec, enabled, created_at, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?, ?)
 	`, in.ID, in.Name, in.CronExpr, in.Prompt, in.GitURL, in.GitRef, in.AgentImage, in.Agent, in.ProviderID, in.ModelID, in.VariantID, string(skills), in.TimeoutSec, now, now)
@@ -811,7 +811,7 @@ func (s *Store) UpdateSchedule(ctx context.Context, name string, in ScheduleInpu
 	}
 	now := time.Now().UTC()
 	_, err = s.db.ExecContext(ctx, `
-		UPDATE devfleet_schedules
+		UPDATE chetter_schedules
 		SET name = ?, cron_expr = ?, prompt = ?,
 		    git_url = ?, git_ref = ?, agent_image = ?,
 		    agent = ?, provider_id = ?, model_id = ?, variant_id = ?,
@@ -864,7 +864,7 @@ func (s *Store) ListSchedules(ctx context.Context, enabledOnly bool) ([]Schedule
 
 // SetScheduleNextRun records the next cron fire time for display.
 func (s *Store) SetScheduleNextRun(ctx context.Context, id string, next time.Time) error {
-	_, err := s.db.ExecContext(ctx, `UPDATE devfleet_schedules SET next_run_at = ?, updated_at = ? WHERE id = ?`, next.UTC(), time.Now().UTC(), id)
+	_, err := s.db.ExecContext(ctx, `UPDATE chetter_schedules SET next_run_at = ?, updated_at = ? WHERE id = ?`, next.UTC(), time.Now().UTC(), id)
 	if err != nil {
 		return fmt.Errorf("update next run: %w", err)
 	}
@@ -873,7 +873,7 @@ func (s *Store) SetScheduleNextRun(ctx context.Context, id string, next time.Tim
 
 // DeleteSchedule removes a schedule by name.
 func (s *Store) DeleteSchedule(ctx context.Context, name string) error {
-	_, err := s.db.ExecContext(ctx, `DELETE FROM devfleet_schedules WHERE name = ?`, name)
+	_, err := s.db.ExecContext(ctx, `DELETE FROM chetter_schedules WHERE name = ?`, name)
 	if err != nil {
 		return fmt.Errorf("delete schedule: %w", err)
 	}
@@ -884,13 +884,13 @@ func (s *Store) DeleteSchedule(ctx context.Context, name string) error {
 func (s *Store) InsertScheduleRun(ctx context.Context, id, scheduleID, taskID, status string, scheduledFor time.Time) error {
 	now := time.Now().UTC()
 	_, err := s.db.ExecContext(ctx, `
-		INSERT INTO devfleet_schedule_runs (id, schedule_id, task_id, status, scheduled_for, created_at)
+		INSERT INTO chetter_schedule_runs (id, schedule_id, task_id, status, scheduled_for, created_at)
 		VALUES (?, ?, ?, ?, ?, ?)
 	`, id, scheduleID, taskID, status, scheduledFor.UTC(), now)
 	if err != nil {
 		return fmt.Errorf("insert schedule run: %w", err)
 	}
-	_, err = s.db.ExecContext(ctx, `UPDATE devfleet_schedules SET last_run_at = ?, updated_at = ? WHERE id = ?`, now, now, scheduleID)
+	_, err = s.db.ExecContext(ctx, `UPDATE chetter_schedules SET last_run_at = ?, updated_at = ? WHERE id = ?`, now, now, scheduleID)
 	if err != nil {
 		return fmt.Errorf("update schedule last run: %w", err)
 	}
@@ -904,7 +904,7 @@ func (s *Store) queryTasks(ctx context.Context, suffix string, args ...any) (*sq
 			commit_author_name, commit_author_email,
 			skills, env, timeout_sec,
 			summary, error, created_at, updated_at, started_at, ended_at
-		FROM devfleet_tasks ` + suffix
+		FROM chetter_tasks ` + suffix
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("query tasks: %w", err)
@@ -957,7 +957,7 @@ func (s *Store) querySchedules(ctx context.Context, suffix string, args ...any) 
 		SELECT id, name, cron_expr, prompt, git_url, git_ref, agent_image,
 			agent, provider_id, model_id, variant_id, skills, timeout_sec,
 			enabled, created_at, updated_at, last_run_at, next_run_at
-		FROM devfleet_schedules ` + suffix
+		FROM chetter_schedules ` + suffix
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("query schedules: %w", err)
@@ -1000,7 +1000,7 @@ func (s *Store) GetTaskEvents(ctx context.Context, taskID string, limit int) ([]
 	}
 	rows, err := s.db.QueryContext(ctx, `
 		SELECT id, task_id, subject, status, payload, created_at
-		FROM devfleet_task_events
+		FROM chetter_task_events
 		WHERE task_id = ?
 		ORDER BY created_at DESC
 		LIMIT ?
@@ -1026,7 +1026,7 @@ func (s *Store) GetLatestTaskEvent(ctx context.Context, taskID string) (EventRec
 	var ev EventRecord
 	err := s.db.QueryRowContext(ctx, `
 		SELECT id, task_id, subject, status, payload, created_at
-		FROM devfleet_task_events
+		FROM chetter_task_events
 		WHERE task_id = ?
 		ORDER BY created_at DESC
 		LIMIT 1

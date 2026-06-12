@@ -3,26 +3,26 @@ services:
     image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: devfleet
-      MYSQL_USER: devfleet
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-devfleet}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-devfleet-root}
+      MYSQL_DATABASE: chetter
+      MYSQL_USER: chetter
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-chetter}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-chetter-root}
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u devfleet -p$${MYSQL_PASSWORD}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u chetter -p$${MYSQL_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 20
     volumes:
       - mysql-data:/var/lib/mysql
 
-  devfleet-mcp:
+  chetter-mcp:
     depends_on:
       mysql:
         condition: service_healthy
       nats:
         condition: service_started
     environment:
-      DATABASE_DSN: ${DATABASE_DSN:-devfleet:${MYSQL_PASSWORD:-devfleet}@tcp(mysql:3306)/devfleet?parseTime=true}
+      DATABASE_DSN: ${DATABASE_DSN:-chetter:${MYSQL_PASSWORD:-chetter}@tcp(mysql:3306)/chetter?parseTime=true}
 
 volumes:
   mysql-data:

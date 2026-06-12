@@ -13,10 +13,10 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/flatout-works/devfleet/runner/internal/config"
-	"github.com/flatout-works/devfleet/runner/internal/controller"
-	"github.com/flatout-works/devfleet/runner/internal/nats"
-	"github.com/flatout-works/devfleet/runner/internal/nats/embedded"
+	"github.com/flatout-works/chetter/runner/internal/config"
+	"github.com/flatout-works/chetter/runner/internal/controller"
+	"github.com/flatout-works/chetter/runner/internal/nats"
+	"github.com/flatout-works/chetter/runner/internal/nats/embedded"
 )
 
 func main() {

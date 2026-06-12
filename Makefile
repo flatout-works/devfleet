@@ -1,11 +1,11 @@
 .PHONY: build test vet lint check runner-test runner-vet runner-lint runner-check docker-build-mcp docker-build-runner-base docker-build-runner
 
-MCP_IMAGE ?= ghcr.io/flatout-works/devfleet-mcp:local
-RUNNER_BASE_IMAGE ?= ghcr.io/flatout-works/flatout-dev-runner-base:local
-RUNNER_IMAGE ?= ghcr.io/flatout-works/flatout-dev-runner:local
+MCP_IMAGE ?= ghcr.io/flatout-works/chetter-mcp:local
+RUNNER_BASE_IMAGE ?= ghcr.io/flatout-works/chetter-runner-base:local
+RUNNER_IMAGE ?= ghcr.io/flatout-works/chetter-runner:local
 build:
 	mkdir -p bin
-	go build -o bin/devfleet .
+	go build -o bin/chetter .
 
 test:
 	go test ./...
@@ -34,7 +34,7 @@ docker-build-mcp:
 	docker build -t $(MCP_IMAGE) .
 
 docker-build-runner-base:
-	docker build -f runner/Dockerfile.devfleet-base -t $(RUNNER_BASE_IMAGE) .
+	docker build -f runner/Dockerfile.chetter-base -t $(RUNNER_BASE_IMAGE) .
 
 docker-build-runner:
-	docker build -f runner/Dockerfile.devfleet -t $(RUNNER_IMAGE) .
+	docker build -f runner/Dockerfile.chetter -t $(RUNNER_IMAGE) .

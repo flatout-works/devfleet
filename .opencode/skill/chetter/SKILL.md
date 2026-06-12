@@ -1,69 +1,69 @@
 ---
-name: devfleet
-description: Use Devfleet to submit, track, and manage remote agent tasks: runner health, task status, schedules, and cancellation. Triggers on devfleet-related workflow requests, slash commands (/devfleet-*), task management, and fleet health checks.
+name: chetter
+description: Use Chetter to submit, track, and manage remote agent tasks: runner health, task status, schedules, and cancellation. Triggers on chetter-related workflow requests, slash commands (/chetter-*), task management, and fleet health checks.
 ---
 
-# Devfleet Remote Development Runner Fleet
+# Chetter Remote Development Runner Fleet
 
-Devfleet is a self-hosted MCP server for running autonomous AI development agents. It gives your AI tooling a way to submit software development work to a fleet of containerized runners.
+Chetter is a self-hosted MCP server for running autonomous AI development agents. It gives your AI tooling a way to submit software development work to a fleet of containerized runners.
 
-- **MCP endpoint:** `https://devfleet.flatout.works/mcp` (hosted) or your own instance
-- **Source repo:** `https://github.com/flatout-works/devfleet`
+- **MCP endpoint:** `https://chetter.flatout.works/mcp` (hosted) or your own instance
+- **Source repo:** `https://github.com/flatout-works/chetter`
 
 ## Available MCP Tools
 
-All tools are prefixed `devfleet_` and available via the `devfleet` MCP server.
+All tools are prefixed `chetter_` and available via the `chetter` MCP server.
 
 ### Fleet Health
 | Tool | Purpose |
 |---|---|
-| `devfleet_runner_health` | Runner fleet health, running/stale tasks, image versions, and latest task event age |
-| `devfleet_list_tasks` | List recent tasks, optional status filter |
-| `devfleet_list_schedules` | List cron task schedules |
+| `chetter_runner_health` | Runner fleet health, running/stale tasks, image versions, and latest task event age |
+| `chetter_list_tasks` | List recent tasks, optional status filter |
+| `chetter_list_schedules` | List cron task schedules |
 
 ### Task Lifecycle
 | Tool | Purpose |
 |---|---|
-| `devfleet_submit_task` | Submit a new task to the fleet |
-| `devfleet_task_status` | Get current status and result for a task |
-| `devfleet_task_progress` | Get distilled progress timeline |
-| `devfleet_task_events` | Get full event history |
-| `devfleet_task_latest_event` | Get most recent event |
-| `devfleet_cancel_task` | Cancel a pending or running task |
-| `devfleet_clear_queue` | Clear queued task messages (requires confirm) |
+| `chetter_submit_task` | Submit a new task to the fleet |
+| `chetter_task_status` | Get current status and result for a task |
+| `chetter_task_progress` | Get distilled progress timeline |
+| `chetter_task_events` | Get full event history |
+| `chetter_task_latest_event` | Get most recent event |
+| `chetter_cancel_task` | Cancel a pending or running task |
+| `chetter_clear_queue` | Clear queued task messages (requires confirm) |
 
 ### Schedules
 | Tool | Purpose |
 |---|---|
-| `devfleet_schedule_task` | Create/activate a cron schedule |
-| `devfleet_update_schedule` | Update a schedule by name |
-| `devfleet_run_schedule` | Run a schedule immediately |
-| `devfleet_delete_schedule` | Delete a schedule by name |
-| `devfleet_sync_schedules` | Load schedules from a YAML directory and upsert them |
+| `chetter_schedule_task` | Create/activate a cron schedule |
+| `chetter_update_schedule` | Update a schedule by name |
+| `chetter_run_schedule` | Run a schedule immediately |
+| `chetter_delete_schedule` | Delete a schedule by name |
+| `chetter_sync_schedules` | Load schedules from a YAML directory and upsert them |
 
 ### Arcane (Vulnerability Scanning, Optional)
 | Tool | Purpose |
 |---|---|
-| `devfleet_arcane_list_images` | List Docker images in an Arcane environment |
-| `devfleet_arcane_image_summary` | Vulnerability summary for a specific image |
-| `devfleet_arcane_environment_summary` | Aggregated vulnerability counts across all images |
-| `devfleet_arcane_list_vulnerabilities` | Detailed vulnerability list with filtering |
-| `devfleet_arcane_scanner_status` | Scanner availability and version |
+| `chetter_arcane_list_images` | List Docker images in an Arcane environment |
+| `chetter_arcane_image_summary` | Vulnerability summary for a specific image |
+| `chetter_arcane_environment_summary` | Aggregated vulnerability counts across all images |
+| `chetter_arcane_list_vulnerabilities` | Detailed vulnerability list with filtering |
+| `chetter_arcane_scanner_status` | Scanner availability and version |
 
 ## Common Workflows
 
 ### Check Fleet Status
-Use `/devfleet-status` or ask:
+Use `/chetter-status` or ask:
 ```
 Tell me about the ongoing tasks
 ```
-The agent will call `devfleet_list_tasks` and `devfleet_runner_health` to show what's running, what's done, what's stale, and what failed.
+The agent will call `chetter_list_tasks` and `chetter_runner_health` to show what's running, what's done, what's stale, and what failed.
 
 ### Submit a Task
-Use `/devfleet-submit` or ask explicitly. When submitting, specify:
+Use `/chetter-submit` or ask explicitly. When submitting, specify:
 - `git_url`: your repository URL
 - `git_ref`: usually `main`
-- `agent_image`: your runner image, such as `ghcr.io/your-org/devfleet-runner:main`
+- `agent_image`: your runner image, such as `ghcr.io/your-org/chetter-runner:main`
 - `prompt`: clear, scoped instructions
 - Optional: `agent`, `provider_id`, `model_id`, `variant_id`, `skills`, `timeout_sec`
 
@@ -80,10 +80,10 @@ A running task is stale in fleet health when `last_event_sec > 600`. Check its e
 Schedules are declarative YAML files. See `schedules/` for sample templates. The workflow:
 
 ```
-Use devfleet_sync_schedules to sync schedules from schedules/
+Use chetter_sync_schedules to sync schedules from schedules/
 ```
 
-This calls `devfleet_sync_schedules` which reads all YAML files and upserts them.
+This calls `chetter_sync_schedules` which reads all YAML files and upserts them.
 
 ## Working with Schedules
 
@@ -91,9 +91,9 @@ This calls `devfleet_sync_schedules` which reads all YAML files and upserts them
 
 1. Copy an existing sample from `schedules/` as a starting point.
 2. Edit it with your repo details and prompt.
-3. Sync to Devfleet:
+3. Sync to Chetter:
    ```
-   Use devfleet_sync_schedules to sync schedules from schedules/
+   Use chetter_sync_schedules to sync schedules from schedules/
    ```
 
 ### Customizing a Schedule
@@ -123,38 +123,38 @@ To change a schedule's cron expression, prompt, model, or other fields:
 1. Edit the `schedules/*.yaml` file directly.
 2. Sync again:
    ```
-   Use devfleet_sync_schedules to sync schedules from schedules/
+   Use chetter_sync_schedules to sync schedules from schedules/
    ```
    Or update individually:
    ```
-   Use devfleet_update_schedule to change nightly-changelog-update's model to opencode/minimax-m3
+   Use chetter_update_schedule to change nightly-changelog-update's model to opencode/minimax-m3
    ```
 
 ### Pausing a Schedule
 Set `enabled: false` in the YAML and sync, or:
 ```
-Use devfleet_update_schedule to disable nightly-issue-fixer
+Use chetter_update_schedule to disable nightly-issue-fixer
 ```
 
 ### Running a Schedule Manually
 ```
-Use devfleet_run_schedule to run the nightly-changelog-update schedule now
+Use chetter_run_schedule to run the nightly-changelog-update schedule now
 ```
 
 ### Deleting a Schedule
 ```
-Use devfleet_delete_schedule to delete nightly-docs-update
+Use chetter_delete_schedule to delete nightly-docs-update
 ```
-Remove the corresponding YAML file so `devfleet_sync_schedules` doesn't recreate it.
+Remove the corresponding YAML file so `chetter_sync_schedules` doesn't recreate it.
 
 ### Keeping Schedules in Your Repo
 
-The recommended pattern is to store schedule YAMLs in your own repo (not in devfleet's `schedules/` directory). When you set up your project:
+The recommended pattern is to store schedule YAMLs in your own repo (not in chetter's `schedules/` directory). When you set up your project:
 
 1. Create a `schedules/` directory in your project repo.
-2. Copy the samples from devfleet's `schedules/` as starting points.
+2. Copy the samples from chetter's `schedules/` as starting points.
 3. Customize for your project (repo URL, agent image, prompt details).
-4. Sync with Devfleet pointing at your project's `schedules/` directory.
+4. Sync with Chetter pointing at your project's `schedules/` directory.
 
 This way your schedules are version-controlled alongside your code and can be reviewed in PRs.
 
@@ -164,7 +164,7 @@ This way your schedules are version-controlled alongside your code and can be re
 - Task prompts must explicitly state whether file edits and PR creation are allowed
 - Tell tasks to create branches and PRs rather than pushing to the default branch
 - Use `timeout_sec` appropriate for the work (e.g., 600 for quick checks, 3600 for code changes)
-- Devfleet clones from Git; tasks cannot access uncommitted local changes
+- Chetter clones from Git; tasks cannot access uncommitted local changes
 - For recurring schedules, check `schedules/` YAMLs into version control
 
 ## Model Selection

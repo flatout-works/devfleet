@@ -16,12 +16,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/config"
-	"github.com/flatout-works/devfleet/runner/internal/containerd"
-	runnerNats "github.com/flatout-works/devfleet/runner/internal/nats"
-	"github.com/flatout-works/devfleet/runner/internal/network"
-	"github.com/flatout-works/devfleet/runner/internal/task"
-	"github.com/flatout-works/devfleet/runner/internal/workspace"
+	"github.com/flatout-works/chetter/runner/internal/config"
+	"github.com/flatout-works/chetter/runner/internal/containerd"
+	runnerNats "github.com/flatout-works/chetter/runner/internal/nats"
+	"github.com/flatout-works/chetter/runner/internal/network"
+	"github.com/flatout-works/chetter/runner/internal/task"
+	"github.com/flatout-works/chetter/runner/internal/workspace"
 
 	nats "github.com/nats-io/nats.go"
 )
@@ -32,7 +32,7 @@ const (
 	serveReadyTimeout     = 15 * time.Second
 	servePollInterval     = 500 * time.Millisecond
 	serveHTTPTimeout      = 2 * time.Second
-	opencodePluginNS      = "devfleet-runner"
+	opencodePluginNS      = "chetter-runner"
 )
 
 // Runner orchestrates agent execution — managing task intake, workspace
@@ -79,7 +79,7 @@ func NewRunner(cfg *config.Config, nc *runnerNats.Client) (*Runner, error) {
 // executionMode returns the agent execution mode.
 //   - "local": plain process on the host (RUNNER_LOCAL=true)
 //   - "docker": OpenCode inside a Docker/Podman container (RUNNER_MODE=docker)
-//   - "kata": OpenCode inside a Kata micro-VM (default for cloud/devfleet)
+//   - "kata": OpenCode inside a Kata micro-VM (default for cloud/chetter)
 func (r *Runner) executionMode() string {
 	if os.Getenv("RUNNER_LOCAL") == "true" {
 		return "local"
@@ -103,10 +103,10 @@ func (r *Runner) Start(ctx context.Context) error {
 	// Start transparent proxy and DNS (Kata mode only — Docker and local don't need them).
 	if r.executionMode() == "kata" {
 		allowed := append([]string(nil), r.cfg.Proxy.AllowedDomains...)
-		if r.cfg.DevfleetMCP.URL != "" {
-			if u, err := url.Parse(r.cfg.DevfleetMCP.URL); err == nil && u.Host != "" {
+		if r.cfg.ChetterMCP.URL != "" {
+			if u, err := url.Parse(r.cfg.ChetterMCP.URL); err == nil && u.Host != "" {
 				allowed = append(allowed, u.Host)
-				slog.Info("added devfleet MCP domain to proxy allowlist", "host", u.Host)
+				slog.Info("added chetter MCP domain to proxy allowlist", "host", u.Host)
 			}
 		}
 		r.proxy = network.NewProxy(r.cfg.Proxy.ListenAddr, allowed, r.cfg.Proxy.BlockedDomains)
@@ -137,7 +137,7 @@ func (r *Runner) Start(ctx context.Context) error {
 	if r.cfg.JetStream.Enabled {
 		eventSubjects := []string{
 			fmt.Sprintf("%s.>", r.cfg.Runner.ResultSubject),
-			"devfleet.activity.>",
+			"chetter.activity.>",
 		}
 		if err := r.natsClient.EnableJetStream(
 			r.cfg.JetStream.TaskStream,
@@ -180,7 +180,7 @@ func (r *Runner) Start(ctx context.Context) error {
 
 	// Subscribe to task cancellation notifications.
 	// Subject is derived from ResultSubject so it works with both global
-	// (devfleet.tasks.*.cancel) and project-scoped (devfleet.<projectID>.tasks.*.cancel) topologies.
+	// (chetter.tasks.*.cancel) and project-scoped (chetter.<projectID>.tasks.*.cancel) topologies.
 	cancelSubject := fmt.Sprintf("%s.*.cancel", r.cfg.Runner.ResultSubject)
 	cancelSub, cancelErr := r.natsClient.Conn.Subscribe(cancelSubject, r.onCancel)
 	if cancelErr != nil {
@@ -247,10 +247,10 @@ func (r *Runner) onTask(msg *nats.Msg) {
 }
 
 // onCancel handles task cancellation notifications on
-// devfleet.tasks.<taskID>.cancel. It cancels the task's context and
+// chetter.tasks.<taskID>.cancel. It cancels the task's context and
 // publishes a cancelled status event so the DB is updated promptly.
 func (r *Runner) onCancel(msg *nats.Msg) {
-	// Extract task ID from subject: devfleet.tasks.<taskID>.cancel
+	// Extract task ID from subject: chetter.tasks.<taskID>.cancel
 	parts := strings.Split(msg.Subject, ".")
 	if len(parts) < 4 {
 		return
@@ -342,7 +342,7 @@ func (r *Runner) decorateTaskResponse(resp *task.TaskResponse, env map[string]st
 		resp.OpenCodeSessionID = sessionID
 	}
 	if resp.RunnerImageDigest == "" {
-		resp.RunnerImageDigest = os.Getenv("DEVFLEET_RUNNER_IMAGE_DIGEST")
+		resp.RunnerImageDigest = os.Getenv("CHETTER_RUNNER_IMAGE_DIGEST")
 	}
 }
 
@@ -393,7 +393,7 @@ func (r *Runner) publishActivityEvent(category, action, description, status, det
 		slog.Error("failed to marshal activity event", "err", err)
 		return
 	}
-	subject := fmt.Sprintf("devfleet.activity.%s", r.projectID())
+	subject := fmt.Sprintf("chetter.activity.%s", r.projectID())
 	if err := r.natsClient.Publish(subject, data); err != nil {
 		slog.Error("failed to publish activity event", "err", err)
 		return

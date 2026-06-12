@@ -137,7 +137,7 @@ code { color: var(--df-50); display: block; font-family: "JetBrains Mono", monos
 .system-box.local { background: linear-gradient(180deg, var(--df-50), #fff); }
 .system-box.server { background: #fff; }
 .system-box.runner { background: linear-gradient(180deg, #faf5ff, #fff); }
-.system-box.devfleet { background: linear-gradient(180deg, var(--df-50), #fff); }
+.system-box.chetter { background: linear-gradient(180deg, var(--df-50), #fff); }
 
 .runtime-diagram { align-items: stretch; border-radius: 2rem; display: grid; gap: 1.2rem; grid-template-columns: 1.25fr 140px 0.75fr; margin-top: 2rem; padding: 1.3rem; }
 .boundary { border: 2px dashed rgba(47, 75, 168, 0.35); border-radius: 1.6rem; display: grid; gap: 0.8rem; padding: 1rem; }

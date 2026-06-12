@@ -1,10 +1,10 @@
-# Devfleet PR Reviewer — Implementation Plan
+# Chetter PR Reviewer — Implementation Plan
 
 ## Overview
 
-A deep PR review agent that runs on every meaningful pull request in the repository. Triggered by a GitHub webhook endpoint in the devfleet MCP service, not by cron. Posts structured reviews (approve / request-changes) with line-level comments using the "Devfleet" GitHub App's identity.
+A deep PR review agent that runs on every meaningful pull request in the repository. Triggered by a GitHub webhook endpoint in the chetter MCP service, not by cron. Posts structured reviews (approve / request-changes) with line-level comments using the "Chetter" GitHub App's identity.
 
-The same GitHub App is used for both creating PRs (existing devfleet scheduled tasks) and reviewing them (this feature). Devfleet reviews all PRs including its own — the reviewer uses a different agent and model than the author, so a second opinion has value.
+The same GitHub App is used for both creating PRs (existing chetter scheduled tasks) and reviewing them (this feature). Chetter reviews all PRs including its own — the reviewer uses a different agent and model than the author, so a second opinion has value.
 
 ---
 
@@ -29,7 +29,7 @@ Check X-GitHub-Delivery + timestamp (replay protection)
        ▼
 Route by event type:
    ├─ pull_request (opened/synchronize/reopened/labeled)
-   │     ├─ Filter: devfleet-review label OR from fork OR modifies *.go|*.proto|migrations/
+   │     ├─ Filter: chetter-review label OR from fork OR modifies *.go|*.proto|migrations/
    │     ├─ If first review for this PR (deduplication via delivery ID):
    │     │     ├─ Auto-label if needed
    │     │     ├─ Generate GitHub App installation token
@@ -37,7 +37,7 @@ Route by event type:
    │     └─ If duplicate → ignore (in-memory recent set + DB record)
    │
    └─ issue_comment (created)
-         ├─ If body == "/devfleet-review" AND commenter has write access:
+         ├─ If body == "/chetter-review" AND commenter has write access:
          │     └─ Submit review task for the PR
          └─ Otherwise → ignore
 ```
@@ -45,7 +45,7 @@ Route by event type:
 ### Sequence Diagram
 
 ```
-GitHub              Devfleet              NATS              Runner             OpenCode
+GitHub              Chetter              NATS              Runner             OpenCode
   │                   │                    │                 │                  │
   │──PR opened───────▶│                    │                 │                  │
   │                   │──200 OK            │                 │                  │
@@ -65,17 +65,17 @@ GitHub              Devfleet              NATS              Runner             O
 
 ---
 
-## GitHub App: "Devfleet"
+## GitHub App: "Chetter"
 
-Registered in a GitHub organization. The app serves as Devfleet's identity on GitHub — assigned as a reviewer, posts review comments, creates PRs, approves/requests-changes.
+Registered in a GitHub organization. The app serves as Chetter's identity on GitHub — assigned as a reviewer, posts review comments, creates PRs, approves/requests-changes.
 
 ### Settings
 
 | Setting | Value |
 |---|---|
-| Name | Devfleet |
+| Name | Chetter |
 | Description | Autonomous development agent |
-| Webhook URL | `https://<devfleet-host>/webhook/github` |
+| Webhook URL | `https://<chetter-host>/webhook/github` |
 | Webhook secret | Generated, stored as `GITHUB_WEBHOOK_SECRET` env var |
 
 ### Permissions
@@ -83,13 +83,13 @@ Registered in a GitHub organization. The app serves as Devfleet's identity on Gi
 | Permission | Access | Purpose |
 |---|---|---|
 | Pull requests | Read & Write | Post reviews, approve, request-changes |
-| Issues | Read & Write | Read linked issues, comment for `/devfleet-review` |
+| Issues | Read & Write | Read linked issues, comment for `/chetter-review` |
 | Contents | Read | Read repo files for review context |
 
 ### Events
 
 - `pull_request` (opened, synchronize, reopened, labeled)
-- `issue_comment` (created) — for `/devfleet-review` command trigger
+- `issue_comment` (created) — for `/chetter-review` command trigger
 
 ### Installation
 
@@ -101,11 +101,11 @@ After creation, install the app on your GitHub organization. Note the Installati
 2. Set the webhook URL and secret
 3. Generate and download the private key (PEM format, saved as `GITHUB_APP_PRIVATE_KEY`)
 4. Install on the organization, note the Installation ID
-5. Store `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET` as devfleet env vars
+5. Store `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET` as chetter env vars
 
 ---
 
-## Devfleet Configuration
+## Chetter Configuration
 
 ### New Env Vars
 
@@ -213,7 +213,7 @@ func verifySignature(secret string, body []byte, header string) bool {
 
 ### Replay Protection
 
-In-memory LRU/set of recent `X-GitHub-Delivery` IDs with TTL (~5 minutes). Prevents duplicate processing if GitHub retries the webhook or the handler crashes mid-processing. Not persisted — if devfleet restarts, in-flight reviews are lost (acceptable, GitHub will not redeliver).
+In-memory LRU/set of recent `X-GitHub-Delivery` IDs with TTL (~5 minutes). Prevents duplicate processing if GitHub retries the webhook or the handler crashes mid-processing. Not persisted — if chetter restarts, in-flight reviews are lost (acceptable, GitHub will not redeliver).
 
 ### `events.go`
 
@@ -271,7 +271,7 @@ func shouldReview(pr *PullRequest, repo string, cfg Config) (bool, string) {
         return false, ""
     }
     // Label check (explicit request)
-    if hasLabel(pr.Labels, "devfleet-review") {
+    if hasLabel(pr.Labels, "chetter-review") {
         return true, "label"
     }
     // Auto-trigger: from fork
@@ -289,7 +289,7 @@ func shouldReview(pr *PullRequest, repo string, cfg Config) (bool, string) {
 
 ### Auto-Labeling
 
-When the review is triggered by file-pattern or fork, automatically add the `devfleet-review` label so the user can see why. Skipped if the label was the trigger (it's already there).
+When the review is triggered by file-pattern or fork, automatically add the `chetter-review` label so the user can see why. Skipped if the label was the trigger (it's already there).
 
 ### Task Submission
 
@@ -321,7 +321,7 @@ func (h *Handler) submitReviewTask(pr PullRequest, repo Repository, trigger stri
 
 If the task submission fails, post a comment to the PR:
 ```go
-gh comment PR_NUMBER --body "🤖 Devfleet review could not start. Check devfleet logs."
+gh comment PR_NUMBER --body "🤖 Chetter review could not start. Check chetter logs."
 ```
 
 ### Token Caching
@@ -508,13 +508,13 @@ The review body must include:
 - **Specific line-level suggestions** — where applicable
 - **Test results** — which checks passed/failed
 
-### 5. PR Footer for Devfleet-Created PRs
+### 5. PR Footer for Chetter-Created PRs
 
-When creating PRs as a devfleet agent, always append this footer to the PR description:
+When creating PRs as a chetter agent, always append this footer to the PR description:
 
 ```
 ---
-Generated by [Devfleet](https://github.com/flatout-works/devfleet)
+Generated by [Chetter](https://github.com/flatout-works/chetter)
 Agent: ${AGENT_NAME} | Model: ${MODEL_ID}
 ```
 
@@ -538,14 +538,14 @@ Verify this with a test: submit a task with `GITHUB_TOKEN` in env, confirm the a
 
 ## Update Existing Schedules with PR Footer
 
-Modify the prompt in all 6 schedule YAML files to append the devfleet footer when creating PRs:
+Modify the prompt in all 6 schedule YAML files to append the chetter footer when creating PRs:
 
 ### Footer Template
 
 ```markdown
 
 ---
-Generated by [Devfleet](https://github.com/flatout-works/devfleet)
+Generated by [Chetter](https://github.com/flatout-works/chetter)
 Agent: {agent_name} | Model: {provider}/{model}
 ```
 
@@ -560,7 +560,7 @@ Agent: {agent_name} | Model: {provider}/{model}
 | `nightly-vulnerability-scan` | (default agent) | from schedule |
 | `weekday-doc-review` | `docs-maintainer` | from agent def |
 
-The agent must read its own agent name and model from env (set by devfleet) and substitute into the footer.
+The agent must read its own agent name and model from env (set by chetter) and substitute into the footer.
 
 ---
 
@@ -568,7 +568,7 @@ The agent must read its own agent name and model from env (set by devfleet) and 
 
 ### Testing Webhook Locally
 
-Options for forwarding GitHub webhooks to a local devfleet:
+Options for forwarding GitHub webhooks to a local chetter:
 
 1. **smee.io** (GitHub's own webhook proxy): `smee --url https://smee.io/<channel> --target http://localhost:8080/webhook/github`
 2. **ngrok**: `ngrok http 8080` and use the HTTPS URL as the GitHub App webhook URL
@@ -609,7 +609,7 @@ For E2E testing, a test repo (or a branch in the main repo) with deliberate issu
 
 ```go
 func TestWebhookHandler_ProcessesPullRequest(t *testing.T) {
-    // Spin up devfleet in-process
+    // Spin up chetter in-process
     // POST a sample pull_request.opened payload
     // Assert SubmitTask was called with right args
 }
@@ -619,7 +619,7 @@ func TestWebhookHandler_ProcessesPullRequest(t *testing.T) {
 
 1. Open a PR in a test repo
 2. Verify webhook fires
-3. Verify task is submitted to devfleet
+3. Verify task is submitted to chetter
 4. Verify runner picks up task
 5. Verify review is posted to PR
 6. Verify review content matches expectations
@@ -629,7 +629,7 @@ func TestWebhookHandler_ProcessesPullRequest(t *testing.T) {
 ## Rollback Plan
 
 If the feature needs to be disabled quickly:
-- Set `GITHUB_WEBHOOK_DISABLED=true` — devfleet returns 200 to all webhooks without processing
+- Set `GITHUB_WEBHOOK_DISABLED=true` — chetter returns 200 to all webhooks without processing
 - The existing cron schedules are unaffected
 
 ---
@@ -648,7 +648,7 @@ If the feature needs to be disabled quickly:
 | `main.go` | Edit | Add `/webhook/github` route, wire up handler |
 | `go.mod` | Edit | Ensure `github.com/golang-jwt/jwt/v5` dependency |
 | `.opencode/agent/pr-reviewer.md` | **New** | PR review agent definition |
-| `schedules/*.yaml` | Edit | Add devfleet footer to all PR-creating schedules |
+| `schedules/*.yaml` | Edit | Add chetter footer to all PR-creating schedules |
 | `builder/Makefile` | Optional | Add `webhook-test` target |
 
 ---
@@ -657,8 +657,8 @@ If the feature needs to be disabled quickly:
 
 | Step | Description | Effort | Blocks |
 |---|---|---|---|
-| 1 | Register GitHub App "Devfleet" (manual) | Small | All webhook work |
-| 2 | Config: add GitHub App fields to devfleet config | Trivial | 3, 4 |
+| 1 | Register GitHub App "Chetter" (manual) | Small | All webhook work |
+| 2 | Config: add GitHub App fields to chetter config | Trivial | 3, 4 |
 | 3 | GitHub API helpers: token generation, label, file listing, comment | Small | 4 |
 | 4 | Webhook handler: signature verification, event routing, task submission, dedup | Medium | 5 |
 | 5 | Route: register `/webhook/github` in main.go | Trivial | 6 |
@@ -672,10 +672,10 @@ If the feature needs to be disabled quickly:
 ## What This Enables
 
 - **Automatic deep code review** on every PR that modifies Go/proto files
-- **On-demand review** via `/devfleet-review` comment (org members/contributors only) or `devfleet-review` label
-- **Devfleet-authored PRs** with proper attribution (footer with agent/model)
-- **Devfleet identity** on GitHub — assigned as reviewer, posts as "Devfleet" app
-- **Self-review of devfleet's own PRs** — different model/agent for a second opinion
+- **On-demand review** via `/chetter-review` comment (org members/contributors only) or `chetter-review` label
+- **Chetter-authored PRs** with proper attribution (footer with agent/model)
+- **Chetter identity** on GitHub — assigned as reviewer, posts as "Chetter" app
+- **Self-review of chetter's own PRs** — different model/agent for a second opinion
 - **Unified architecture** — same task submission pipeline as scheduled tasks, triggered by webhook instead of cron
 - **Kill switch** via env var for quick rollback
-- **Per-repo allowlist** to limit which repos devfleet reviews
+- **Per-repo allowlist** to limit which repos chetter reviews

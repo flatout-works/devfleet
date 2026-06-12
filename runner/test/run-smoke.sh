@@ -21,7 +21,7 @@ pkill -f "runner -config test.runner.yaml" 2>/dev/null || true
 sleep 1
 
 # Clean workspace
-rm -rf /tmp/devfleet-test-runner
+rm -rf /tmp/chetter-test-runner
 
 # Start runner fully detached with setsid
 setsid bash -c '
@@ -34,14 +34,14 @@ echo "Runner started in session $RUNNER_PGID"
 
 # Wait for ready
 for i in $(seq 1 30); do
-  if grep -q "listening on devfleet.test.tasks" /tmp/runner-smoke.log 2>/dev/null; then
+  if grep -q "listening on chetter.test.tasks" /tmp/runner-smoke.log 2>/dev/null; then
     echo "Runner ready after $i seconds"
     break
   fi
   sleep 1
 done
 
-if ! grep -q "listening on devfleet.test.tasks" /tmp/runner-smoke.log 2>/dev/null; then
+if ! grep -q "listening on chetter.test.tasks" /tmp/runner-smoke.log 2>/dev/null; then
   echo "Runner failed to start. Log:"
   cat /tmp/runner-smoke.log 2>/dev/null || true
   exit 1

@@ -1,4 +1,4 @@
-module github.com/flatout-works/devfleet/runner
+module github.com/flatout-works/chetter/runner
 
 go 1.26
 

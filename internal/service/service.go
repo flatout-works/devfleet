@@ -1,4 +1,4 @@
-// Package service contains devfleet orchestration and MCP tool handlers.
+// Package service contains chetter orchestration and MCP tool handlers.
 package service
 
 import (
@@ -15,9 +15,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/flatout-works/devfleet/internal/bus"
-	"github.com/flatout-works/devfleet/internal/config"
-	"github.com/flatout-works/devfleet/internal/store"
+	"github.com/flatout-works/chetter/internal/bus"
+	"github.com/flatout-works/chetter/internal/config"
+	"github.com/flatout-works/chetter/internal/store"
 	"github.com/nats-io/nats.go"
 	"github.com/robfig/cron/v3"
 	"gopkg.in/yaml.v3"

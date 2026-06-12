@@ -3,17 +3,17 @@ nats:
 
 jetstream:
   enabled: false
-  task_stream: DEVFLEET_TASKS
-  event_stream: DEVFLEET_EVENTS
-  task_durable: devfleet-runner
-  task_queue: devfleet-runners
+  task_stream: CHETTER_TASKS
+  event_stream: CHETTER_EVENTS
+  task_durable: chetter-runner
+  task_queue: chetter-runners
   ack_wait_seconds: 7200
   max_deliver: 3
   storage: file
 
 runner:
-  listen_subject: devfleet.runner.tasks
-  result_subject: devfleet.tasks
+  listen_subject: chetter.runner.tasks
+  result_subject: chetter.tasks
   workspace_root: /var/lib/runner
   max_concurrent: 10
 
@@ -64,8 +64,8 @@ git:
 deploy:
   provider: local
   registry: ""
-  devfleet_url: devfleet.works
+  chetter_url: chetter.flatout.works
 
-devfleet_mcp:
+chetter_mcp:
   url: ""
   auth_token: ""

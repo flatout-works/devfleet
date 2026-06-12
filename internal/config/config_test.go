@@ -8,8 +8,8 @@ func TestValidate(t *testing.T) {
 	t.Run("all required fields present", func(t *testing.T) {
 		cfg := Config{
 			DatabaseDSN:  "root@tcp(localhost:4000)/db",
-			TaskSubject:  "devfleet.runner.tasks",
-			EventSubject: "devfleet.tasks.>",
+			TaskSubject:  "chetter.runner.tasks",
+			EventSubject: "chetter.tasks.>",
 		}
 		if err := cfg.Validate(); err != nil {
 			t.Fatalf("expected nil, got %v", err)

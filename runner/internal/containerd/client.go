@@ -25,7 +25,7 @@ type Client struct {
 // NewClient creates a containerd client wrapper.
 func NewClient(namespace string) *Client {
 	if namespace == "" {
-		namespace = "devfleet-runner"
+		namespace = "chetter-runner"
 	}
 	return &Client{Namespace: namespace}
 }
@@ -65,7 +65,7 @@ func (c *Client) RunKata(ctx context.Context, taskID, image string, mounts []Mou
 		scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 		for scanner.Scan() {
 			line := scanner.Text()
-		slog.Debug("kata output", "taskID", taskID, "stream", name, "line", line)
+			slog.Debug("kata output", "taskID", taskID, "stream", name, "line", line)
 			mu.Lock()
 			buf.WriteString(line)
 			buf.WriteByte('\n')

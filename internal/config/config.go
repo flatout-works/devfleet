@@ -1,4 +1,4 @@
-// Package config loads devfleet service configuration from environment variables.
+// Package config loads chetter service configuration from environment variables.
 package config
 
 import (
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Config holds all runtime settings for the devfleet MCP service.
+// Config holds all runtime settings for the chetter MCP service.
 type Config struct {
 	HTTPAddr                 string
 	MCPAuthToken             string
@@ -43,15 +43,15 @@ func Load() Config {
 		DatabaseDSN:              os.Getenv("DATABASE_DSN"),
 		NATSURL:                  env("NATS_URL", "nats://localhost:4222"),
 		JetStreamEnabled:         envBool("JETSTREAM_ENABLED", true),
-		TaskStream:               env("JETSTREAM_TASK_STREAM", "DEVFLEET_TASKS"),
-		EventStream:              env("JETSTREAM_EVENT_STREAM", "DEVFLEET_EVENTS"),
-		TaskDurable:              env("JETSTREAM_TASK_DURABLE", "devfleet-runner"),
-		TaskSubject:              env("TASK_SUBJECT", "devfleet.runner.tasks"),
-		EventSubject:             env("EVENT_SUBJECT", "devfleet.tasks.>"),
-		EventDurable:             env("EVENT_DURABLE", "devfleet-mcp-events"),
-		EventQueue:               env("EVENT_QUEUE", "devfleet-mcp"),
+		TaskStream:               env("JETSTREAM_TASK_STREAM", "CHETTER_TASKS"),
+		EventStream:              env("JETSTREAM_EVENT_STREAM", "CHETTER_EVENTS"),
+		TaskDurable:              env("JETSTREAM_TASK_DURABLE", "chetter-runner"),
+		TaskSubject:              env("TASK_SUBJECT", "chetter.runner.tasks"),
+		EventSubject:             env("EVENT_SUBJECT", "chetter.tasks.>"),
+		EventDurable:             env("EVENT_DURABLE", "chetter-mcp-events"),
+		EventQueue:               env("EVENT_QUEUE", "chetter-mcp"),
 		Storage:                  env("JETSTREAM_STORAGE", "file"),
-		DefaultAgentImage:        env("DEFAULT_AGENT_IMAGE", "ghcr.io/flatout-works/flatout-dev-runner:latest"),
+		DefaultAgentImage:        env("DEFAULT_AGENT_IMAGE", "ghcr.io/flatout-works/chetter-runner:latest"),
 		DefaultTaskTimeoutSec:    envInt("DEFAULT_TASK_TIMEOUT_SEC", 600),
 		ArcaneServerURL:          env("ARCANE_SERVER_URL", ""),
 		ArcaneAPIKey:             env("ARCANE_API_KEY", ""),

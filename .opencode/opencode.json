@@ -1,35 +1,35 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "command": {
-    "devfleet-status": {
-      "description": "Show devfleet runner health, running/pending tasks, and schedules.",
-      "template": "Use the devfleet MCP tools to produce a concise devfleet operations status report. Call devfleet_runner_health with include_tasks=true, devfleet_list_tasks for status=running with limit=20, devfleet_list_tasks for status=pending with limit=20, and devfleet_list_schedules with enabled_only=false. Summarize fleet activity, runner image versions, running/stale/pending task counts, each active task, and all schedules. If an MCP call fails, include the exact error and continue. Do not edit files."
+    "chetter-status": {
+      "description": "Show chetter runner health, running/pending tasks, and schedules.",
+      "template": "Use the chetter MCP tools to produce a concise chetter operations status report. Call chetter_runner_health with include_tasks=true, chetter_list_tasks for status=running with limit=20, chetter_list_tasks for status=pending with limit=20, and chetter_list_schedules with enabled_only=false. Summarize fleet activity, runner image versions, running/stale/pending task counts, each active task, and all schedules. If an MCP call fails, include the exact error and continue. Do not edit files."
     },
-    "devfleet-tasks": {
-      "description": "List recent Devfleet tasks with status summary.",
-      "template": "Run devfleet_list_tasks to get recent tasks. Summarize: which are running, done, errored, and pending. For running tasks note if any are stale (>10min since last event). Keep output concise."
+    "chetter-tasks": {
+      "description": "List recent Chetter tasks with status summary.",
+      "template": "Run chetter_list_tasks to get recent tasks. Summarize: which are running, done, errored, and pending. For running tasks note if any are stale (>10min since last event). Keep output concise."
     },
-    "devfleet-submit": {
-      "description": "Submit a new task to the Devfleet runner fleet.",
-      "template": "Ask the user for the task prompt, then submit via devfleet_submit_task. Ask for git_url if not obvious, default git_ref to main. Suggest agent_image if known. Let the user optionally specify agent, provider_id, model_id, and timeout_sec. Return the task ID."
+    "chetter-submit": {
+      "description": "Submit a new task to the Chetter runner fleet.",
+      "template": "Ask the user for the task prompt, then submit via chetter_submit_task. Ask for git_url if not obvious, default git_ref to main. Suggest agent_image if known. Let the user optionally specify agent, provider_id, model_id, and timeout_sec. Return the task ID."
     },
-    "devfleet-schedules": {
-      "description": "List Devfleet cron task schedules.",
-      "template": "Run devfleet_list_schedules to list all cron task schedules. Compare enabled vs disabled counts and show the name, cron expression, and prompt summary for each schedule. Keep output concise."
+    "chetter-schedules": {
+      "description": "List Chetter cron task schedules.",
+      "template": "Run chetter_list_schedules to list all cron task schedules. Compare enabled vs disabled counts and show the name, cron expression, and prompt summary for each schedule. Keep output concise."
     },
-    "devfleet-cancel": {
-      "description": "Cancel a pending or running Devfleet task.",
-      "template": "Cancel the specified devfleet task. Ask for the task ID if not provided. Use devfleet_cancel_task with the given ID and optionally a reason. Confirm the result."
+    "chetter-cancel": {
+      "description": "Cancel a pending or running Chetter task.",
+      "template": "Cancel the specified chetter task. Ask for the task ID if not provided. Use chetter_cancel_task with the given ID and optionally a reason. Confirm the result."
     }
   },
   "mcp": {
-    "devfleet": {
+    "chetter": {
       "type": "remote",
-      "url": "https://devfleet.flatout.works/mcp",
+      "url": "https://chetter.flatout.works/mcp",
       "enabled": true,
       "oauth": false,
       "headers": {
-        "Authorization": "Bearer {env:DEVFLEET_MCP_TOKEN}"
+        "Authorization": "Bearer {env:CHETTER_MCP_TOKEN}"
       },
       "timeout": 30000
     }

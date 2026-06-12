@@ -1,7 +1,7 @@
 package store
 
 var schemaStatements = []string{
-	`CREATE TABLE IF NOT EXISTS devfleet_tasks (
+	`CREATE TABLE IF NOT EXISTS chetter_tasks (
 		id VARCHAR(64) NOT NULL,
 		status VARCHAR(32) NOT NULL,
 		prompt TEXT NOT NULL,
@@ -26,10 +26,10 @@ var schemaStatements = []string{
 		started_at DATETIME(6) NULL,
 		ended_at DATETIME(6) NULL,
 		PRIMARY KEY (id),
-		KEY idx_devfleet_tasks_status_created (status, created_at),
-		KEY idx_devfleet_tasks_created (created_at)
+		KEY idx_chetter_tasks_status_created (status, created_at),
+		KEY idx_chetter_tasks_created (created_at)
 	)`,
-	`CREATE TABLE IF NOT EXISTS devfleet_task_events (
+	`CREATE TABLE IF NOT EXISTS chetter_task_events (
 		id VARCHAR(64) NOT NULL,
 		task_id VARCHAR(64) NOT NULL,
 		subject VARCHAR(255) NOT NULL,
@@ -37,10 +37,10 @@ var schemaStatements = []string{
 		payload JSON NOT NULL,
 		created_at DATETIME(6) NOT NULL,
 		PRIMARY KEY (id),
-		KEY idx_devfleet_task_events_task_created (task_id, created_at),
-		KEY idx_devfleet_task_events_created (created_at)
+		KEY idx_chetter_task_events_task_created (task_id, created_at),
+		KEY idx_chetter_task_events_created (created_at)
 	)`,
-	`CREATE TABLE IF NOT EXISTS devfleet_runners (
+	`CREATE TABLE IF NOT EXISTS chetter_runners (
 		id VARCHAR(64) NOT NULL,
 		status VARCHAR(32) NOT NULL,
 		image_ref VARCHAR(512) NULL,
@@ -60,10 +60,10 @@ var schemaStatements = []string{
 		updated_at DATETIME(6) NOT NULL,
 		metadata JSON NOT NULL,
 		PRIMARY KEY (id),
-		KEY idx_devfleet_runners_status_seen (status, last_seen_at),
-		KEY idx_devfleet_runners_digest_seen (image_digest, last_seen_at)
+		KEY idx_chetter_runners_status_seen (status, last_seen_at),
+		KEY idx_chetter_runners_digest_seen (image_digest, last_seen_at)
 	)`,
-	`CREATE TABLE IF NOT EXISTS devfleet_schedules (
+	`CREATE TABLE IF NOT EXISTS chetter_schedules (
 		id VARCHAR(64) NOT NULL,
 		name VARCHAR(128) NOT NULL,
 		cron_expr VARCHAR(128) NOT NULL,
@@ -83,10 +83,10 @@ var schemaStatements = []string{
 		last_run_at DATETIME(6) NULL,
 		next_run_at DATETIME(6) NULL,
 		PRIMARY KEY (id),
-		UNIQUE KEY uq_devfleet_schedules_name (name),
-		KEY idx_devfleet_schedules_enabled_next (enabled, next_run_at)
+		UNIQUE KEY uq_chetter_schedules_name (name),
+		KEY idx_chetter_schedules_enabled_next (enabled, next_run_at)
 	)`,
-	`CREATE TABLE IF NOT EXISTS devfleet_schedule_runs (
+	`CREATE TABLE IF NOT EXISTS chetter_schedule_runs (
 		id VARCHAR(64) NOT NULL,
 		schedule_id VARCHAR(64) NOT NULL,
 		task_id VARCHAR(64) NOT NULL,
@@ -94,7 +94,7 @@ var schemaStatements = []string{
 		scheduled_for DATETIME(6) NOT NULL,
 		created_at DATETIME(6) NOT NULL,
 		PRIMARY KEY (id),
-		KEY idx_devfleet_schedule_runs_schedule_created (schedule_id, created_at),
-		KEY idx_devfleet_schedule_runs_task (task_id)
+		KEY idx_chetter_schedule_runs_schedule_created (schedule_id, created_at),
+		KEY idx_chetter_schedule_runs_task (task_id)
 	)`,
 }

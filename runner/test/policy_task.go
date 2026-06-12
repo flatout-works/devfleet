@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flatout-works/devfleet/runner/internal/task"
-	"github.com/flatout-works/devfleet/runner/test/testutil"
+	"github.com/flatout-works/chetter/runner/internal/task"
+	"github.com/flatout-works/chetter/runner/test/testutil"
 	"github.com/nats-io/nats.go"
 )
 

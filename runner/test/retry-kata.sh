@@ -5,7 +5,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUNNER_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-LOG_FILE="${DEVFLEET_KATA_LOG:-/tmp/devfleet-kata-runner.log}"
+LOG_FILE="${CHETTER_KATA_LOG:-/tmp/chetter-kata-runner.log}"
 KEEP_RUNNER=0
 NO_BUILD=0
 FLUSH_IPTABLES=0
@@ -23,8 +23,8 @@ Options:
 Environment:
   SYNTHETIC_API_KEY  Required by test/opencode_kata_task.go
   NATS_URL           Optional, defaults to nats://localhost:4222
-  DEVFLEET_KATA_LOG   Optional log path, defaults to /tmp/devfleet-kata-runner.log
-  DEVFLEET_KATA_PREFLIGHT=1 enables verbose curl/strace Kata debugging
+  CHETTER_KATA_LOG   Optional log path, defaults to /tmp/chetter-kata-runner.log
+  CHETTER_KATA_PREFLIGHT=1 enables verbose curl/strace Kata debugging
 EOF
 }
 
@@ -56,11 +56,11 @@ cleanup_state() {
   pkill -f "opencode_kata_task" 2>/dev/null || true
 
   echo "[retry] killing stale kata-poc tasks"
-  sudo ctr -n devfleet-runner task ls 2>/dev/null | awk 'NR > 1 && $1 ~ /^kata-poc-/ { print $1 }' | while read -r task_id; do
+  sudo ctr -n chetter-runner task ls 2>/dev/null | awk 'NR > 1 && $1 ~ /^kata-poc-/ { print $1 }' | while read -r task_id; do
     [ -n "$task_id" ] || continue
-    sudo ctr -n devfleet-runner task kill --signal SIGKILL "$task_id" 2>/dev/null || true
-    sudo ctr -n devfleet-runner task delete "$task_id" 2>/dev/null || true
-    sudo ctr -n devfleet-runner container delete "$task_id" 2>/dev/null || true
+    sudo ctr -n chetter-runner task kill --signal SIGKILL "$task_id" 2>/dev/null || true
+    sudo ctr -n chetter-runner task delete "$task_id" 2>/dev/null || true
+    sudo ctr -n chetter-runner container delete "$task_id" 2>/dev/null || true
   done
 
   echo "[retry] deleting stale test bridges/netns"
@@ -85,7 +85,7 @@ start_runner() {
   (cd "$RUNNER_DIR" && sudo ./runner -config runner.yaml > "$LOG_FILE" 2>&1) &
 
   for _ in $(seq 1 30); do
-    if grep -q "listening on devfleet.runner.tasks" "$LOG_FILE" 2>/dev/null; then
+    if grep -q "listening on chetter.runner.tasks" "$LOG_FILE" 2>/dev/null; then
       echo "[retry] runner ready"
       return 0
     fi

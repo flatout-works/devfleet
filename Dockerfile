@@ -8,9 +8,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 go build -o /out/devfleet ./
+    CGO_ENABLED=0 go build -o /out/chetter ./
 
 FROM gcr.io/distroless/static-debian12:nonroot
-COPY --from=build /out/devfleet /devfleet
+COPY --from=build /out/chetter /chetter
 EXPOSE 8080
-ENTRYPOINT ["/devfleet"]
+ENTRYPOINT ["/chetter"]

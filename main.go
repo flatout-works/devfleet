@@ -12,25 +12,25 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/flatout-works/devfleet/internal/bus"
-	"github.com/flatout-works/devfleet/internal/config"
-	"github.com/flatout-works/devfleet/internal/service"
-	"github.com/flatout-works/devfleet/internal/store"
-	"github.com/flatout-works/devfleet/internal/webhook"
+	"github.com/flatout-works/chetter/internal/bus"
+	"github.com/flatout-works/chetter/internal/config"
+	"github.com/flatout-works/chetter/internal/service"
+	"github.com/flatout-works/chetter/internal/store"
+	"github.com/flatout-works/chetter/internal/webhook"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 const (
-	mcpServerName    = "devfleet"
-	mcpServerVersion = "v0.1.0"
-	initTimeout      = 30 * time.Second
-	shutdownTimeout  = 15 * time.Second
+	mcpServerName     = "chetter"
+	mcpServerVersion  = "v0.1.0"
+	initTimeout       = 30 * time.Second
+	shutdownTimeout   = 15 * time.Second
 	readHeaderTimeout = 10 * time.Second
 )
 
 func main() {
 	if err := run(); err != nil {
-		slog.Error("devfleet exited", "error", err)
+		slog.Error("chetter exited", "error", err)
 		os.Exit(1)
 	}
 }
@@ -108,7 +108,7 @@ func run() error {
 		}
 	}()
 
-	slog.Info("devfleet MCP server listening", "addr", cfg.HTTPAddr)
+	slog.Info("chetter MCP server listening", "addr", cfg.HTTPAddr)
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("serve http: %w", err)
 	}

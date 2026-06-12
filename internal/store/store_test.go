@@ -12,28 +12,28 @@ func TestNormalizeDSN(t *testing.T) {
 	}{
 		{
 			name: "mysql url",
-			in:   "mysql://user:pass@example.com:4000/devfleet",
-			want: "user:pass@tcp(example.com:4000)/devfleet?parseTime=true",
+			in:   "mysql://user:pass@example.com:4000/chetter",
+			want: "user:pass@tcp(example.com:4000)/chetter?parseTime=true",
 		},
 		{
 			name: "tidbcloud url adds tls",
-			in:   "mysql://user:pass@gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/devfleet",
-			want: "user:pass@tcp(gateway01.eu-central-1.prod.aws.tidbcloud.com:4000)/devfleet?parseTime=true&tls=tidb",
+			in:   "mysql://user:pass@gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/chetter",
+			want: "user:pass@tcp(gateway01.eu-central-1.prod.aws.tidbcloud.com:4000)/chetter?parseTime=true&tls=tidb",
 		},
 		{
 			name: "mysql url preserves query",
-			in:   "mysql://user:pass@example.com:4000/devfleet?tls=true",
-			want: "user:pass@tcp(example.com:4000)/devfleet?parseTime=true&tls=true",
+			in:   "mysql://user:pass@example.com:4000/chetter?tls=true",
+			want: "user:pass@tcp(example.com:4000)/chetter?parseTime=true&tls=true",
 		},
 		{
 			name: "driver dsn adds parse time",
-			in:   "user:pass@tcp(example.com:4000)/devfleet",
-			want: "user:pass@tcp(example.com:4000)/devfleet?parseTime=true",
+			in:   "user:pass@tcp(example.com:4000)/chetter",
+			want: "user:pass@tcp(example.com:4000)/chetter?parseTime=true",
 		},
 		{
 			name: "driver dsn preserves parse time",
-			in:   "user:pass@tcp(example.com:4000)/devfleet?parseTime=true&tls=true",
-			want: "user:pass@tcp(example.com:4000)/devfleet?parseTime=true&tls=true",
+			in:   "user:pass@tcp(example.com:4000)/chetter?parseTime=true&tls=true",
+			want: "user:pass@tcp(example.com:4000)/chetter?parseTime=true&tls=true",
 		},
 	}
 

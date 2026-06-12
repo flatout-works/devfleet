@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/flatout-works/devfleet/internal/store"
+	"github.com/flatout-works/chetter/internal/store"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -30,8 +30,8 @@ func TestTaskToolRecordKeepsStableShape(t *testing.T) {
 		VariantID:         "variant",
 		OpenCodeSessionID: "session",
 		RunnerImageDigest: "digest",
-		CommitAuthorName:  "Devfleet",
-		CommitAuthorEmail: "devfleet@devfleet.works",
+		CommitAuthorName:  "Chetter",
+		CommitAuthorEmail: "chetter@chetter.flatout.works",
 		Skills:            []string{"go"},
 		Env:               map[string]string{"SAFE": "value"},
 		TimeoutSec:        300,
