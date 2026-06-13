@@ -62,6 +62,10 @@ type Runner struct {
 // Use Start to begin processing tasks.
 func NewRunner(cfg *config.Config, nc *runnerNats.Client) (*Runner, error) {
 	cd := containerd.NewClient(opencodePluginNS)
+	runnerID, err := newRunnerID()
+	if err != nil {
+		return nil, err
+	}
 	return &Runner{
 		cfg:           cfg,
 		natsClient:    nc,
@@ -69,7 +73,7 @@ func NewRunner(cfg *config.Config, nc *runnerNats.Client) (*Runner, error) {
 		containerd:    cd,
 		bridgeMgr:     network.NewBridgeManager(cfg.Proxy.ListenAddr, cfg.DNS.ListenAddr),
 		tasks:         make(map[string]*task.TaskSession),
-		runnerID:      newRunnerID(),
+		runnerID:      runnerID,
 		startedAt:     time.Now().UTC(),
 		terminalTasks: make(map[string]struct{}),
 		sem:           make(chan struct{}, cfg.Runner.MaxConcurrent),

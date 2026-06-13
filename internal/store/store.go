@@ -630,10 +630,11 @@ func (s *Store) GetRunnerFleetHealth(ctx context.Context, maxEventSecForActive, 
 		info.StartedAt = nullTimePtr(startedAt)
 		info.IsStale = info.LastSeenSec > maxRunnerPresenceSec
 		info.CurrentTaskIDs = currentTaskIDsFromMetadata(metadata)
-		health.Runners = append(health.Runners, info)
-		if !info.IsStale {
-			health.FleetActive = true
+		if info.IsStale {
+			continue
 		}
+		health.Runners = append(health.Runners, info)
+		health.FleetActive = true
 
 		imgKey := info.ImageDigest
 		if imgKey == "" {

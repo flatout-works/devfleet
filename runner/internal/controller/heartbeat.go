@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -10,7 +11,7 @@ import (
 	"time"
 )
 
-const heartbeatInterval = 30 * time.Second
+const heartbeatInterval = 5 * time.Second
 
 type runnerHeartbeat struct {
 	EventType      string    `json:"event_type"`
@@ -33,18 +34,18 @@ type runnerHeartbeat struct {
 	SentAt         time.Time `json:"sent_at"`
 }
 
-func newRunnerID() string {
-	for _, key := range []string{"RUNNER_ID", "HOSTNAME"} {
-		if value := sanitizeSubjectToken(os.Getenv(key)); value != "" {
-			return value
-		}
+func newRunnerID() (string, error) {
+	if value := sanitizeSubjectToken(os.Getenv("RUNNER_ID")); value != "" {
+		return value, nil
 	}
-	if hostname, err := os.Hostname(); err == nil {
-		if value := sanitizeSubjectToken(hostname); value != "" {
-			return value
-		}
+
+	var b [16]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return "", fmt.Errorf("generate runner id: %w", err)
 	}
-	return "runner-unknown"
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+	return fmt.Sprintf("runner-%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
 }
 
 func sanitizeSubjectToken(value string) string {
