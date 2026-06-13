@@ -629,6 +629,15 @@ func promptModel(req task.TaskRequest, defaultProvider, defaultModel string) (st
 	return providerID, modelID
 }
 
+// resolvedChetterModelID returns the provider-qualified model identifier the
+// runner will actually use for the OpenCode session. Schedules and other
+// callers may omit provider_id/model_id, so this falls back to the runner's
+// default model and guarantees the CHETTER_MODEL_ID env var is never empty.
+func resolvedChetterModelID(req task.TaskRequest) string {
+	providerID, modelID := promptModel(req, "synthetic", "hf:zai-org/GLM-5.1")
+	return providerID + "/" + modelID
+}
+
 func promptVariant(req task.TaskRequest) string {
 	if req.VariantID != "" {
 		return req.VariantID
@@ -697,6 +706,10 @@ func (r *Runner) runKataAgent(ctx context.Context, session *task.TaskSession, re
 		env[k] = v
 	}
 	addRunnerOwnedEnv(env)
+	env["CHETTER_AGENT_NAME"] = req.Agent
+	env["CHETTER_MODEL_ID"] = resolvedChetterModelID(req)
+	env["CHETTER_RUNNER_IMAGE"] = os.Getenv("CHETTER_RUNNER_IMAGE")
+	env["CHETTER_RUNNER_IMAGE_DIGEST"] = os.Getenv("CHETTER_RUNNER_IMAGE_DIGEST")
 	resolvConfPath := session.WorkspaceDir + "/.chetter-resolv.conf"
 	if err := os.WriteFile(resolvConfPath, []byte("nameserver "+taskNet.GatewayIP+"\noptions timeout:2 attempts:2\n"), 0644); err != nil {
 		r.publishStatusForRequest(req, "error", fmt.Sprintf("write task resolv.conf: %v", err), nil)
@@ -810,7 +823,7 @@ func (r *Runner) runLocalAgent(ctx context.Context, session *task.TaskSession, r
 		"GIT_COMMITTER_NAME=Chetter Runner",
 		"GIT_COMMITTER_EMAIL=chetter@chetter.flatout.works",
 		"CHETTER_AGENT_NAME="+req.Agent,
-		"CHETTER_MODEL_ID="+req.ProviderID+"/"+req.ModelID,
+		"CHETTER_MODEL_ID="+resolvedChetterModelID(req),
 		"CHETTER_RUNNER_IMAGE="+os.Getenv("CHETTER_RUNNER_IMAGE"),
 		"CHETTER_RUNNER_IMAGE_DIGEST="+os.Getenv("CHETTER_RUNNER_IMAGE_DIGEST"),
 	)
@@ -949,7 +962,7 @@ func (r *Runner) runDockerAgent(ctx context.Context, session *task.TaskSession, 
 		"-e", "OPENCODE_CONFIG=/opt/opencode/.config/opencode/config.json",
 		"-e", "OPENCODE_SERVER_PASSWORD=" + secret,
 		"-e", "CHETTER_AGENT_NAME=" + req.Agent,
-		"-e", "CHETTER_MODEL_ID=" + req.ProviderID + "/" + req.ModelID,
+		"-e", "CHETTER_MODEL_ID=" + resolvedChetterModelID(req),
 		"-e", "CHETTER_RUNNER_IMAGE=" + os.Getenv("CHETTER_RUNNER_IMAGE"),
 		"-e", "CHETTER_RUNNER_IMAGE_DIGEST=" + os.Getenv("CHETTER_RUNNER_IMAGE_DIGEST"),
 	}

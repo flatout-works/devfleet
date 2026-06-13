@@ -102,6 +102,30 @@ func TestModelFlag_ExplicitTaskModelWins(t *testing.T) {
 	}
 }
 
+func TestResolvedChetterModelID_ExplicitModel(t *testing.T) {
+	req := task.TaskRequest{ProviderID: "anthropic", ModelID: "claude-sonnet-4-6"}
+	if got := resolvedChetterModelID(req); got != "anthropic/claude-sonnet-4-6" {
+		t.Fatalf("expected explicit model, got %q", got)
+	}
+}
+
+func TestResolvedChetterModelID_FallsBackToEnv(t *testing.T) {
+	req := task.TaskRequest{Env: map[string]string{
+		"LLM_PROVIDER":    "devpass",
+		"LLM_MODEL_CODER": "gpt-5.5",
+	}}
+	if got := resolvedChetterModelID(req); got != "devpass/gpt-5.5" {
+		t.Fatalf("expected env fallback, got %q", got)
+	}
+}
+
+func TestResolvedChetterModelID_DefaultsWhenEmpty(t *testing.T) {
+	req := task.TaskRequest{}
+	if got := resolvedChetterModelID(req); got != "synthetic/hf:zai-org/GLM-5.1" {
+		t.Fatalf("expected default model, got %q", got)
+	}
+}
+
 func TestPromptWithSkillHints(t *testing.T) {
 	result := promptWithSkillHints("Do work", []string{"update-docs-from-git", "openapi"})
 	if !strings.Contains(result, "Requested OpenCode skills: update-docs-from-git, openapi.") {
